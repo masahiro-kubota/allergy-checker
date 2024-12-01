@@ -68,6 +68,22 @@ def derive_ingredients(recipe_id):
         ingredient_list.extend(i['recipeMaterial'])
     return ingredient_list
 
+def check_allergens_in_recipe(recipe_database, recipe_name, allergens):
+    ingredients = recipe_database.get(recipe_name)
+    if not ingredients:
+        return f"料理名 '{recipe_name}' のレシピが見つかりません。"
+    # 原材料の中にアレルゲンが含まれているかチェック
+    """
+    detected_allergens = []
+    for i in ingredients:
+        for a in allergens:
+            if a in i:
+                detected_allergens.append(a)
+    """
+    
+    detected_allergens = [a for a in allergens if any(a in i for i in ingredients)]
+
+    return f"この料理にはアレルゲンが含まれています: {','.join(detected_allergens)}"
 
 if __name__ == '__main__':
     load_dotenv()
@@ -77,12 +93,17 @@ if __name__ == '__main__':
     #print("read_csv")
     recipe_df = pd.read_csv('data/category_list.csv')
     print("derive_recipe_id")
-    cuisine_id = derive_recipe_id(recipe_df, "オムライス")
+    cuisine_database = {}
+    cuisine_name = "オムライス"
+    cuisine_id = derive_recipe_id(recipe_df, cuisine_name)
     # 「オムライス」カテゴリの人気レシピを取得
     print("derive_ingredients")
     ingredient_data = derive_ingredients(cuisine_id)
-    #pprint(ingredient_data['result'][0]['recipeMaterial'])
-    print(ingredient_data)
+    #print(ingredient_data)
+    cuisine_database["オムライス"] = ingredient_data
+    my_allergens = ["卵", "豆"]
+    print(check_allergens_in_recipe(cuisine_database, cuisine_name, my_allergens))
+    
 
 
 
