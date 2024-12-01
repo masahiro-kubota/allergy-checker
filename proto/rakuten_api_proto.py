@@ -83,20 +83,19 @@ def check_allergens_in_recipe(recipe_database, recipe_name, allergens):
 if __name__ == '__main__':
     load_dotenv()
     application_id = os.getenv('RAKUTEN_API_APPLICATION_ID')
-    #print("derive_category_list")
-    #derive_category_list()
+    print("derive_category_list")
+    derive_category_list()
     print("read_csv")
     recipe_df = pd.read_csv('data/category_list.csv')
     print("derive_recipe_id")
     cuisine_database = {}
-    cuisine_name = "オムライス"
+    cuisine_name = "ソーセージ"
     cuisine_id = derive_recipe_id(recipe_df, cuisine_name)
-    # 「オムライス」カテゴリの人気レシピを取得
     print("derive_ingredients")
     ingredient_data = derive_ingredients(cuisine_id)
-    #print(ingredient_data)
+    print(ingredient_data)
     cuisine_database[cuisine_name] = ingredient_data
-    my_allergens = ["卵", "豆"]
+    my_allergens = ["卵"]
     print(check_allergens_in_recipe(cuisine_database, cuisine_name, my_allergens))
     
 
@@ -106,7 +105,7 @@ if __name__ == '__main__':
 
 # TODO 卵の量を考慮したチェック（ドーナツ1個分ぐらいはいける）
 # TODO 火が通ってるかどうかのチェック
-
+# TODO マヨネーズ等卵が含まれた製品が弾けない。
 # TODO 焼きそばと入力したとき、どの焼きそばか結構難しい
 """
       Unnamed: 0  category1  category2  category3   categoryId categoryName
@@ -116,4 +115,10 @@ if __name__ == '__main__':
 916          916         16      155.0     2147.0  16-155-2147       かた焼きそば
 918          918         16      155.0      152.0   16-155-152     アレンジ焼きそば
 1243        1243         22      229.0     1017.0  22-229-1017       焼きそばパン
+"""
+
+# TODO ソーセージと検索したとき、添えられていると思われるジャガイモも原材料に含まれている。
+"""
+['ウィンナー', '卵', '★砂糖', '★塩', '☆ヤマサ昆布つゆ', '☆みりん', '☆醤油', 'マヨネーズ', 'ブラックペッパー', '乾燥パセリ', 'ウインナー', 'キャベツ', 'にんにく', 'バター', '塩こしょう', 'ウインナー', 'ジャガイモ', '玉ねぎ', '塩', 'こしょう', 'チーズ', 'あらびきソーセージ', '長芋', '★塩', '★粗挽き胡椒', '★にんにくチューブ']
+この料理にはアレルゲンが含まれています: 卵
 """
