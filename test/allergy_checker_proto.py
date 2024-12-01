@@ -14,15 +14,19 @@ def check_allergens_in_recipe(recipe_name):
     if not ingredients:
         return f"料理名 '{recipe_name}' のレシピが見つかりません。"
     # 原材料の中にアレルゲンが含まれているかチェック
+    """
     detected_allergens = []
     for i in ingredients:
         for a in allergens:
             if a in i:
                 detected_allergens.append(a)
+    """
+    
+    detected_allergens = [a for a in allergens if any(a in i for i in ingredients)]
 
     return f"この料理にはアレルゲンが含まれています: {','.join(detected_allergens)}"
 
 print(check_allergens_in_recipe("オムライス"))  # Output: この料理には以下のアレルゲンが含まれています: 卵
 print(check_allergens_in_recipe("豆乳スープ"))  # Output: この料理には以下のアレルゲンが含まれています: 豆
-print(check_allergens_in_recipe("フライドチキン"))  # Output: この料理には以下のアレルゲンが含まれています: 卵
+print(check_allergens_in_recipe("フライドチキン"))  # Output: この料理には以下のアレルゲンが含まれています: 卵, 豆
 print(check_allergens_in_recipe("カレー"))  # Output: 料理名 'カレー' のレシピが見つかりません。
