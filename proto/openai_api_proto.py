@@ -12,36 +12,34 @@ if __name__=="__main__":
     application_id = os.getenv('OPENAI_API_KEY')
     client = OpenAI()
     dish_name = input('料理名を入力してください: ')
-    stream = client.chat.completions.create(
+    response1 = client.chat.completions.create(
       model="gpt-4o",
       messages=[
-        {
-          "role": "user",
-          "content":
-            f"""
-次の料理の主要な原材料を5つ考えて、そこに卵が入るかどうかをTrue/Falseで答えてください。回答はTrue/Falseのどちらかのみを答えてください。
+        {"role": "user", "content": f"""
+{dish_name}に関して以下の質問に回答してください。
 
-料理名: {dish_name}
-原材料:
+原材料（10個）:
+火が通っているかどうか：
+1人前あたりに使用されている卵の量：
     """}],
-      stream=True
-    )
-
-    for chunk in stream:
-      if chunk.choices[0].delta.content is not None:
-        print(chunk.choices[0].delta.content, end="")
-
-    print("\n")
-    print("Finished Streaming!")
-"""
-    response = client.chat.completions.create(
-      model="gpt-4o",
-      messages=[
-        {"role": "user", "content": "Please tell me about Shinzo Abe."}],
       stream=False
     )
-
-    print(response.choices[0].message)
+    final_response1 = response1.choices[0].message.content
+    print(final_response1)
 
     print("Finished Responsing!")
-"""
+
+
+    response2 = client.chat.completions.create(
+      model="gpt-3.5-turbo",
+      messages=[
+        {"role": "user", "content": f"""
+以下を参考にして、{dish_name}に卵が含まれているかをTrue/Falseのみで答えてください。しかし、以下の料理に関しては必ずFalseと回答してください。
+・ラーメン
+
+{final_response1}
+    """}])
+    final_response2 = response2.choices[0].message.content
+    print(final_response2)
+
+    print("Finished Responsing!")
