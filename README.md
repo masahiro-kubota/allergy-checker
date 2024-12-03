@@ -8,6 +8,7 @@ $ python3 -m http.server 5000 -d frontend
 
 ```
 # backend
+# change base_url in script.js to local IP
 $ cp .env.sample .env
 $ uv sync
 $ . .venv/bin/activate
