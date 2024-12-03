@@ -20,6 +20,12 @@ click==8.1.7
 distro==1.9.0
     # via openai
 flask==3.1.0
+    # via
+    #   allergy-checker (pyproject.toml)
+    #   flask-cors
+flask-cors==5.0.0
+    # via allergy-checker (pyproject.toml)
+gunicorn==23.0.0
     # via allergy-checker (pyproject.toml)
 h11==0.14.0
     # via httpcore
@@ -44,6 +50,8 @@ markupsafe==3.0.2
     #   werkzeug
 openai==1.56.1
     # via allergy-checker (pyproject.toml)
+packaging==24.2
+    # via gunicorn
 pydantic==2.10.3
     # via openai
 pydantic-core==2.27.1

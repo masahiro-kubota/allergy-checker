@@ -2,6 +2,11 @@ I have many allergies.
 Check if I can eat that dish.
 
 ```
+# frontend
+$ python3 -m http.server 5000 -d frontend
+```
+
+```
 # backend
 $ cp .env.sample .env
 $ uv sync
