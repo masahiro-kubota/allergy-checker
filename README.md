@@ -10,6 +10,7 @@ $ gunicorn backend.app:app --workers 4 --log-level debug --bind 127.0.0.1:8000
 ```
 
 ```
+#check the operation of the backend server
 $ curl -X POST http://127.0.0.1:8000/check_allergy \
 -H "Content-Type: application/json" \
 -d '{
@@ -18,3 +19,4 @@ $ curl -X POST http://127.0.0.1:8000/check_allergy \
 # {"safe_to_eat":false}
 
 ```
+![alt text](image.png)

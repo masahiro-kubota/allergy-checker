@@ -4,10 +4,12 @@ from time import time
 
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from openai import AsyncOpenAI,OpenAI
 
 
 app = Flask(__name__)
+CORS(app)
 
 async def ask_dish_details_async(dish_name, client, start_time):
     
