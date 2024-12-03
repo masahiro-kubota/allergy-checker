@@ -1,11 +1,13 @@
-#!/usr/bin/env python3
 import asyncio
 import os
 from time import time
 
 from dotenv import load_dotenv
+from flask import Flask, request, jsonify
 from openai import AsyncOpenAI,OpenAI
 
+
+app = Flask(__name__)
 
 async def ask_dish_details_async(dish_name, client, start_time):
     
@@ -132,29 +134,28 @@ async def async_main(my_dish):
     return final_answer
 
 
+@app.route('/check_allergy', methods=['POST'])
+def check_allergy():
+    try:
+        # リクエストからデータを取得
+        data = request.get_json()
+        dish_name = data.get('dish_name')
+        load_dotenv()
+        answer = asyncio.run(async_main(dish_name))
+        print("answer", answer)
+        if answer:
+            print(f"{dish_name}は食べられます。")
+        else:
+            print(f"{dish_name}は食べられません。")
 
-if __name__=="__main__":
-    load_dotenv()
-    dish = input('料理名を入力してください: ')
-    answer = asyncio.run(async_main(dish))
-    print("answer", answer)
-    if answer:
-        print(f"{dish}は食べられます。")
-    else:
-        print(f"{dish}は食べられません。")
-    
-    """
-    my_ingredient = "卵"
-    my_dish_details = ask_dish_details(my_dish, my_client)
-    print(my_dish_details)
-    has_egg = check_ingredient(my_dish, my_ingredient, my_dish_details, my_client)
-    print(has_egg)
-    """
-    
+        return jsonify({"safe_to_eat": answer})
 
-#TODO Trueが含まれているかFalseが含まれているかで後処理する。Trueの方が多かったらTrueにしてしまう。Trueだけを出力しなかった場合記録するか。
-"""
-卵が含まれているかをTrue/Falseのみで答えてください。
-- 牛丼：True
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-"""
+
+
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
