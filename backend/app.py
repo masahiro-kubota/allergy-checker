@@ -1,15 +1,13 @@
 import asyncio
-import os
 from time import time
 
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from openai import AsyncOpenAI,OpenAI
+from openai import AsyncOpenAI
 
 
-app = Flask(__name__)
-CORS(app)
+
 
 async def ask_dish_details_async(dish_name, client, start_time):
     
@@ -111,53 +109,61 @@ async def async_main(my_dish):
     start_time = time()
 
     task1_1 = asyncio.create_task(ask_dish_details_async(my_dish, async_client, start_time))
-    task1_2 = asyncio.create_task(ask_dish_cooked_async(my_dish, async_client, start_time))
-    task1_3 = asyncio.create_task(check_white_list_dish_async(my_dish, "ラーメン", async_client, 3, start_time))
-    task1 = [task1_1, task1_2, task1_3]
+    task1_2 = asyncio.create_task(check_white_list_dish_async(my_dish, "ラーメン", async_client, 3, start_time))
+    task1 = [task1_1, task1_2]
     results1 = await asyncio.gather(*task1)
     # TODO 原材料と火が通っているかの確認は並行して処理できるからここでgatherする必要がない。
 
     my_dish_details = results1[0]
-    my_details_cooked = results1[1]
-    check_white_list_dishes = results1[2]
+    check_white_list_dishes = results1[1]
     print(my_dish_details)
     task2_1 = asyncio.create_task(check_ingredient_async(my_dish, "卵", my_dish_details, async_client, 1, start_time))
-    task2_2 = asyncio.create_task(check_cooked_async(my_dish, my_details_cooked, async_client, 2, start_time))
+    task2_2 = asyncio.create_task(check_ingredient_async(my_dish, "芋類", my_dish_details, async_client, 1, start_time))
+    task2_3 = asyncio.create_task(check_ingredient_async(my_dish, "生野菜", my_dish_details, async_client, 1, start_time))
     #task2_3 = asyncio.create_task(check_white_list_async(my_dish, "ラーメン", async_client, 3, start_time))
     # TODO 原材料確認と火が通っているかの確認は別で動かした方が速い。
-    # TODO 追加確認材料 いも類　ナッツ類　甲殻類　貝類　ごぼう　れんこん　こんにゃく　そば　
+    # TODO 追加確認材料 いも類　ナッツ類　甲殻類　貝類　ごぼう　れんこん　こんにゃく　そば　生野菜・生肉・生魚
     # 追加ホワイトリスト　卵（ラーメン）　イモ類（さつまいも）　果物（柑橘類　いちご　ぶどう　パイナップル　りんご　缶詰）豆（醤油　味噌）　甲殻類（えびせん　桜えび）　　
-    tasks2 = [task2_1, task2_2]
+    tasks2 = [task2_1, task2_2, task2_3]
     results2 = await asyncio.gather(*tasks2)
     check_egg = results2[0]
-    check_cooked = results2[1]
+    check_potato = results2[1]
+    check_raw_vegetable = results2[2]
     print(results2[0])
-    final_answer = check_white_list_dishes or (check_egg and check_cooked)
-    return final_answer
+    safe_to_eat = check_white_list_dishes or (check_egg and check_potato and check_raw_vegetable)
+    elements_dict = {
+    "check_white_list_dishes": check_white_list_dishes,
+    "check_egg": check_egg,
+    "check_potato": check_potato,
+    "check_raw_vegetable": check_raw_vegetable,
+    "safe_to_eat": safe_to_eat
+    }
+    return elements_dict
 
+def create_app():
+    my_app = Flask(__name__)
+    CORS(my_app)
+    @my_app.route('/check_allergy', methods=['POST'])
+    def check_allergy():
+        try:
+            # リクエストからデータを取得
+            data = request.get_json()
+            dish_name = data.get('dish_name')
+            load_dotenv()
+            result_dict = asyncio.run(async_main(dish_name))
+            answer = result_dict["safe_to_eat"]
+            print("answer", answer)
+            if answer:
+                print(f"{dish_name}は食べられます。")
+            else:
+                print(f"{dish_name}は食べられません。")
 
-@app.route('/check_allergy', methods=['POST'])
-def check_allergy():
-    try:
-        # リクエストからデータを取得
-        data = request.get_json()
-        dish_name = data.get('dish_name')
-        load_dotenv()
-        answer = asyncio.run(async_main(dish_name))
-        print("answer", answer)
-        if answer:
-            print(f"{dish_name}は食べられます。")
-        else:
-            print(f"{dish_name}は食べられません。")
+            return jsonify(result_dict)
 
-        return jsonify({"safe_to_eat": answer})
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+        
+    return my_app
 
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+app = create_app()
 
-
-
-
-
-if __name__ == '__main__':
-    app.run(debug=True)

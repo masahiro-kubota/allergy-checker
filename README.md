@@ -22,7 +22,7 @@ $ curl -X POST http://127.0.0.1:8000/check_allergy \
 -d '{
     "dish_name": "Peanut Butter Sandwich"
 }'
-# {"safe_to_eat":false}
+# {"check_egg":true,"check_potato":true,"check_raw_vegetable":true,"check_white_list_dishes":false,"safe_to_eat":true}
 
 ```
 ![alt text](image.png)
