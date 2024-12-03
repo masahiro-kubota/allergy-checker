@@ -22,6 +22,42 @@ def ask_dish_details(dish_name, client, start_time):
     final_response = response.choices[0].message.content
     end = time()
     elapsed_time = end - start_time
+    print(f"Task 1 finished in {elapsed_time} seconds")
+    return final_response
+
+async def ask_dish_details_async(dish_name, client, start_time):
+    
+    response = await client.chat.completions.create(
+      model="gpt-4o-mini",
+      messages=[
+        {"role": "user", "content": f"""
+{dish_name}に関して以下の質問に回答してください。
+
+原材料（10個）:
+    """}],
+      stream=False
+    )
+    final_response = response.choices[0].message.content
+    end = time()
+    elapsed_time = end - start_time
+    print(f"Task 2 finished in {elapsed_time} seconds")
+    return final_response
+
+async def ask_dish_cooked_async(dish_name, client, start_time):
+    
+    response = await client.chat.completions.create(
+      model="gpt-4o-mini",
+      messages=[
+        {"role": "user", "content": f"""
+{dish_name}に関して以下の質問に回答してください。
+
+火が通っているかどうか：
+    """}],
+      stream=False
+    )
+    final_response = response.choices[0].message.content
+    end = time()
+    elapsed_time = end - start_time
     print(f"Task finished in {elapsed_time} seconds")
     return final_response
 
@@ -91,17 +127,25 @@ async def async_main():
     client = OpenAI()
     my_dish = input('料理名を入力してください: ')
     start_time = time()
-    my_dish_details = ask_dish_details(my_dish, client, start_time)
+
+    task1_1 = asyncio.create_task(ask_dish_details_async(my_dish, async_client, start_time))
+    task1_2 = asyncio.create_task(ask_dish_cooked_async(my_dish, async_client, start_time))
+    task1_3 = asyncio.create_task(check_white_list_async(my_dish, "ラーメン", async_client, 3, start_time))
+    task1 = [task1_1, task1_2, task1_3]
+    results1 = await asyncio.gather(*task1)
+    my_dish_details = results1[0]
+    my_details_cooked = results1[1]
     print(my_dish_details)
-    task1 = asyncio.create_task(check_ingredient_async(my_dish, "卵", my_dish_details, async_client, 1, start_time))
-    task2 = asyncio.create_task(check_cooked_async(my_dish, my_dish_details, async_client, 2, start_time))
-    task3 = asyncio.create_task(check_white_list_async(my_dish, "ラーメン", async_client, 3, start_time))
+    task2_1 = asyncio.create_task(check_ingredient_async(my_dish, "卵", my_dish_details, async_client, 1, start_time))
+    task2_2 = asyncio.create_task(check_cooked_async(my_dish, my_details_cooked, async_client, 2, start_time))
+    #task2_3 = asyncio.create_task(check_white_list_async(my_dish, "ラーメン", async_client, 3, start_time))
     # TODO 回答している時間が長いから、回答が短くなるように質問を分けたほうがいい。
     # TODO 原材料確認と火が通っているかの確認は別で動かした方が速い。
     # TODO 追加確認材料 いも類　ナッツ類　甲殻類　貝類　ごぼう　れんこん　こんにゃく　そば　
     # 追加ホワイトリスト　卵（ラーメン）　イモ類（さつまいも）　果物（柑橘類　いちご　ぶどう　パイナップル　りんご　缶詰）豆（醤油　味噌）　甲殻類（えびせん　桜えび）　　
-    tasks = [task1, task2, task3]
-    await asyncio.gather(*tasks)
+    tasks2 = [task2_1, task2_2]
+    results2 = await asyncio.gather(*tasks2)
+    print(results2[0])
 
 
 
