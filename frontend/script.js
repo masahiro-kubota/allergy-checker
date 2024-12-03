@@ -12,7 +12,7 @@ document.getElementById("allergyForm").addEventListener("submit", async function
       // Flaskエンドポイントにリクエストを送信
       base_url = 'https://allergy-checker.onrender.com'
     //base_url = 'http://127.0.0.1:8000'
-      const response = await fetch(f"{base_url}/check_allergy", {
+      const response = await fetch(`${base_url}/check_allergy`, {
           method: "POST",
           headers: {
               "Content-Type": "application/json",
