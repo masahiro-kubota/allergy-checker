@@ -15,6 +15,7 @@ document.getElementById("allergyForm").addEventListener("submit", async function
 
 
   // 初期化
+  resultDiv.classList.remove("safe", "not-safe");
   resultDiv.querySelector("#safeToEat").textContent = "Checking...";
   checkEgg.textContent = "";
   checkPotato.textContent = "";
@@ -28,7 +29,7 @@ document.getElementById("allergyForm").addEventListener("submit", async function
   try {
       // サーバー送信イベント (SSE) を使って結果を逐次受信
       base_url = 'https://allergy-checker.onrender.com'; // or 'http://127.0.0.1:8000'
-      //base_url = 'http://127.0.0.1:8000'
+      base_url = 'http://127.0.0.1:8000'
       const eventSource = new EventSource(`${base_url}/check_allergy_stream?dish_name=${encodeURIComponent(dishName)}`);
 
       eventSource.onmessage = function (event) {
