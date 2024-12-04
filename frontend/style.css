@@ -88,7 +88,7 @@ button:hover {
 /* バツマークのスタイル */
 .crossmark {
   font-size: 40px; /* サイズ調整 */
-  color: red; /* 赤色のバツマーク */
+  color: red !important; /* 赤色のバツマーク */
   text-align: center;
   margin: 20px auto;
 }
