@@ -10,26 +10,26 @@ from quart_cors import cors
 from openai import AsyncOpenAI
 
 
-
-async def ask_dish_details_async(dish_name, client, start_time):
-    
+# Not used now
+async def check_cooked_async(dish_name, dish_details, client, num, start_time):
     response = await client.chat.completions.create(
       model="gpt-4o-mini",
       messages=[
         {"role": "user", "content": f"""
-{dish_name}に関して以下の質問に回答してください。
+以下を参考にして、{dish_name}は火が通っているかをTrue/Falseのみで答えてください。
 
-原材料（10個）:
-    """}],
-      stream=False
-    )
-    final_response = response.choices[0].message.content
+{dish_details}
+    """}])
+    llm_response = response.choices[0].message.content
+    final_response = check_true_false(llm_response)
     end = time()
     elapsed_time = end - start_time
-    print(f"Task 1 finished in {elapsed_time} seconds")
-    key = "dish_details"
+    print(f"Task {num} finished in {elapsed_time} seconds: {final_response}")
+    key = "cooked_tf"
     return key, final_response
 
+
+# Not used now
 async def ask_dish_cooked_async(dish_name, client, start_time):
     
     response = await client.chat.completions.create(
@@ -50,6 +50,25 @@ async def ask_dish_cooked_async(dish_name, client, start_time):
     key = "cooked"
     return key, final_response
 
+async def ask_dish_details_async(dish_name, client, start_time):
+    
+    response = await client.chat.completions.create(
+      model="gpt-4o-mini",
+      messages=[
+        {"role": "user", "content": f"""
+{dish_name}に関して以下の質問に回答してください。
+
+原材料（10個）:
+    """}],
+      stream=False
+    )
+    final_response = response.choices[0].message.content
+    end = time()
+    elapsed_time = end - start_time
+    print(f"Task 1 finished in {elapsed_time} seconds")
+    key = "dish_details"
+    return key, final_response
+
 
 async def check_ingredient_async(dish_name, ingredient, ingredient_key, dish_details, client, num, start_time):
     response = await client.chat.completions.create(
@@ -68,22 +87,6 @@ async def check_ingredient_async(dish_name, ingredient, ingredient_key, dish_det
     key = ingredient_key + "_tf"
     return key, final_response
 
-async def check_cooked_async(dish_name, dish_details, client, num, start_time):
-    response = await client.chat.completions.create(
-      model="gpt-4o-mini",
-      messages=[
-        {"role": "user", "content": f"""
-以下を参考にして、{dish_name}は火が通っているかをTrue/Falseのみで答えてください。
-
-{dish_details}
-    """}])
-    llm_response = response.choices[0].message.content
-    final_response = check_true_false(llm_response)
-    end = time()
-    elapsed_time = end - start_time
-    print(f"Task {num} finished in {elapsed_time} seconds: {final_response}")
-    key = "cooked_tf"
-    return key, final_response
 
 async def check_white_list_dish_async(dish_name, white_list, client, num, start_time):
     response = await client.chat.completions.create(
@@ -108,46 +111,9 @@ def check_true_false(response):
     false_num = response.count("False")
     return true_num > false_num
 
-#def check_eatable(results):
-    
 
-async def async_main(my_dish):
-    async_client = AsyncOpenAI()
-    start_time = time()
 
-    task1_1 = asyncio.create_task(ask_dish_details_async(my_dish, async_client, start_time))
-    task1_2 = asyncio.create_task(check_white_list_dish_async(my_dish, "ラーメン", async_client, 3, start_time))
-    task1 = [task1_1, task1_2]
-    results1 = await asyncio.gather(*task1)
-    # TODO 原材料と火が通っているかの確認は並行して処理できるからここでgatherする必要がない。
-
-    my_dish_details = results1[0]
-    check_white_list_dishes = results1[1]
-    print(my_dish_details)
-    task2_1 = asyncio.create_task(check_ingredient_async(my_dish, "卵", my_dish_details, async_client, 1, start_time))
-    task2_2 = asyncio.create_task(check_ingredient_async(my_dish, "芋類", my_dish_details, async_client, 1, start_time))
-    task2_3 = asyncio.create_task(check_ingredient_async(my_dish, "生野菜", my_dish_details, async_client, 1, start_time))
-    #task2_3 = asyncio.create_task(check_white_list_async(my_dish, "ラーメン", async_client, 3, start_time))
-    # TODO 原材料確認と火が通っているかの確認は別で動かした方が速い。
-    # TODO 追加確認材料 いも類　ナッツ類　甲殻類　貝類　ごぼう　れんこん　こんにゃく　そば　生野菜・生肉・生魚
-    # 追加ホワイトリスト　卵（ラーメン）　イモ類（さつまいも）　果物（柑橘類　いちご　ぶどう　パイナップル　りんご　缶詰）豆（醤油　味噌）　甲殻類（えびせん　桜えび）　　
-    tasks2 = [task2_1, task2_2, task2_3]
-    results2 = await asyncio.gather(*tasks2)
-    check_egg = results2[0]
-    check_potato = results2[1]
-    check_raw_vegetable = results2[2]
-    print(results2[0])
-    safe_to_eat = check_white_list_dishes or (check_egg and check_potato and check_raw_vegetable)
-    elements_dict = {
-    "check_white_list_dishes": check_white_list_dishes,
-    "check_egg": check_egg,
-    "check_potato": check_potato,
-    "check_raw_vegetable": check_raw_vegetable,
-    "safe_to_eat": safe_to_eat
-    }
-    return elements_dict
-
-async def async_create_tasks(my_dish):
+async def create_tasks_async(my_dish):
     async_client = AsyncOpenAI()
     start_time = time()
     my_dict = {}
@@ -166,13 +132,17 @@ async def async_create_tasks(my_dish):
     my_dish_details = my_dict["dish_details"]
     print(my_dish_details)
     task2_1 = asyncio.create_task(check_ingredient_async(my_dish, "卵", "egg", my_dish_details, async_client, 1, start_time))
-    task2_2 = asyncio.create_task(check_ingredient_async(my_dish, "芋類", "potato", my_dish_details, async_client, 1, start_time))
-    task2_3 = asyncio.create_task(check_ingredient_async(my_dish, "生野菜", "raw_vegetables", my_dish_details, async_client, 1, start_time))
+    task2_2 = asyncio.create_task(check_ingredient_async(my_dish, "さつまいも以外の芋類", "potato", my_dish_details, async_client, 1, start_time))
+    task2_3 = asyncio.create_task(check_ingredient_async(my_dish, "加熱処理されていない野菜", "raw_vegetables", my_dish_details, async_client, 1, start_time))
+    task2_4 = asyncio.create_task(check_ingredient_async(my_dish, "ナッツ", "nuts", my_dish_details, async_client, 1, start_time))
+    task2_5 = asyncio.create_task(check_ingredient_async(my_dish, "ごぼう", "raw_vegetables", my_dish_details, async_client, 1, start_time))
+    task2_6 = asyncio.create_task(check_ingredient_async(my_dish, "れんこん", "raw_vegetables", my_dish_details, async_client, 1, start_time))
+    task2_7 = asyncio.create_task(check_ingredient_async(my_dish, "こんにゃく", "raw_vegetables", my_dish_details, async_client, 1, start_time))
+    task2_8 = asyncio.create_task(check_ingredient_async(my_dish, "そば", "raw_vegetables", my_dish_details, async_client, 1, start_time))
     #task2_3 = asyncio.create_task(check_white_list_async(my_dish, "ラーメン", async_client, 3, start_time))
-    # TODO 原材料確認と火が通っているかの確認は別で動かした方が速い。
-    # TODO 追加確認材料 いも類　ナッツ類　甲殻類　貝類　ごぼう　れんこん　こんにゃく　そば　
+    # TODO 追加確認材料 ナッツ類　甲殻類　ごぼう　れんこん　こんにゃく　そば　
     # 追加ホワイトリスト　卵（ラーメン）　イモ類（さつまいも）　果物（柑橘類　いちご　ぶどう　パイナップル　りんご　缶詰）豆（醤油　味噌）　甲殻類（えびせん　桜えび）　　
-    tasks2 = [task2_1, task2_2, task2_3]
+    tasks2 = [task2_1, task2_2, task2_3, task2_4, task2_5, task2_6, task2_7, task2_8]
     for completed_task in asyncio.as_completed(tasks2):
         key, result = await completed_task
         my_dict[key] = result
@@ -192,26 +162,6 @@ def create_app():
     my_app = Quart(__name__)
     
     cors(my_app, allow_origin="*")
-    @my_app.route('/check_allergy', methods=['POST'])
-    def check_allergy():
-        try:
-            # リクエストからデータを取得
-            data = request.get_json()
-            dish_name = data.get('dish_name')
-            load_dotenv()
-            result_dict = asyncio.run(async_main(dish_name))
-            answer = result_dict["safe_to_eat"]
-            print("answer", answer)
-            if answer:
-                print(f"{dish_name}は食べられます。")
-            else:
-                print(f"{dish_name}は食べられません。")
-
-            return jsonify(result_dict)
-
-        except Exception as e:
-            return jsonify({"error": str(e)}), 500
-        
 
     @my_app.route('/stream', methods=['GET'])
     def stream():
@@ -227,7 +177,7 @@ def create_app():
             return jsonify({"error": "Dish name is required"}), 400
 
         async def stream():
-            async for chunk in async_create_tasks(dish_name):
+            async for chunk in create_tasks_async(dish_name):
                 yield chunk.encode("utf-8")  # UTF-8 にエンコード
 
         return Response(stream(), mimetype='text/event-stream')
