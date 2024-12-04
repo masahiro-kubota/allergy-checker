@@ -3,7 +3,6 @@ import json
 import time
 from time import time, sleep
 
-from asgiref.wsgi import WsgiToAsgi
 from dotenv import load_dotenv
 from quart import Quart, request, jsonify, Response
 from quart_cors import cors
