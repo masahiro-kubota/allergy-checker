@@ -51,7 +51,7 @@ async def ask_dish_cooked_async(dish_name, client, start_time):
     return key, final_response
 
 
-async def check_ingredient_async(dish_name, ingredient, dish_details, client, num, start_time):
+async def check_ingredient_async(dish_name, ingredient, ingredient_key, dish_details, client, num, start_time):
     response = await client.chat.completions.create(
       model="gpt-4o-mini",
       messages=[
@@ -65,7 +65,7 @@ async def check_ingredient_async(dish_name, ingredient, dish_details, client, nu
     end = time()
     elapsed_time = end - start_time
     print(f"Task {num} finished in {elapsed_time} seconds: {final_response}")
-    key = "ingredient_tf"
+    key = ingredient_key + "_tf"
     return key, final_response
 
 async def check_cooked_async(dish_name, dish_details, client, num, start_time):
@@ -152,9 +152,8 @@ async def async_create_tasks(my_dish):
     start_time = time()
     my_dict = {}
     task1_1 = asyncio.create_task(ask_dish_details_async(my_dish, async_client, start_time))
-    task1_2 = asyncio.create_task(ask_dish_cooked_async(my_dish, async_client, start_time))
-    task1_3 = asyncio.create_task(check_white_list_dish_async(my_dish, "ラーメン", async_client, 3, start_time))
-    task1 = [task1_1, task1_2, task1_3]
+    task1_2 = asyncio.create_task(check_white_list_dish_async(my_dish, "ラーメン", async_client, 3, start_time))
+    task1 = [task1_1, task1_2]
     for completed_task in asyncio.as_completed(task1):
         key, result = await completed_task
         my_dict[key] = result
@@ -164,20 +163,20 @@ async def async_create_tasks(my_dish):
     # TODO 原材料と火が通っているかの確認は並行して処理できるからここでgatherする必要がない。
 
     my_dish_details = my_dict["dish_details"]
-    my_details_cooked = my_dict["cooked"]
     print(my_dish_details)
-    task2_1 = asyncio.create_task(check_ingredient_async(my_dish, "卵", my_dish_details, async_client, 1, start_time))
-    task2_2 = asyncio.create_task(check_cooked_async(my_dish, my_details_cooked, async_client, 2, start_time))
+    task2_1 = asyncio.create_task(check_ingredient_async(my_dish, "卵", "egg", my_dish_details, async_client, 1, start_time))
+    task2_2 = asyncio.create_task(check_ingredient_async(my_dish, "芋類", "potato", my_dish_details, async_client, 1, start_time))
+    task2_3 = asyncio.create_task(check_ingredient_async(my_dish, "生野菜", "raw_vegetables", my_dish_details, async_client, 1, start_time))
     #task2_3 = asyncio.create_task(check_white_list_async(my_dish, "ラーメン", async_client, 3, start_time))
     # TODO 原材料確認と火が通っているかの確認は別で動かした方が速い。
     # TODO 追加確認材料 いも類　ナッツ類　甲殻類　貝類　ごぼう　れんこん　こんにゃく　そば　
     # 追加ホワイトリスト　卵（ラーメン）　イモ類（さつまいも）　果物（柑橘類　いちご　ぶどう　パイナップル　りんご　缶詰）豆（醤油　味噌）　甲殻類（えびせん　桜えび）　　
-    tasks2 = [task2_1, task2_2]
+    tasks2 = [task2_1, task2_2, task2_3]
     for completed_task in asyncio.as_completed(tasks2):
         key, result = await completed_task
         my_dict[key] = result
         yield json.dumps({key: result}) + "\n"
-    final_answer = my_dict["white_list_tf"] or (my_dict["ingredient_tf"] and my_dict["cooked_tf"])
+    final_answer = my_dict["white_list_tf"] or (my_dict["egg_tf"] and my_dict["potato_tf"] and my_dict["raw_vegetables_tf"])
     yield json.dumps({"final_answer": final_answer}, ensure_ascii=False) + "\n"  # 日本語をエスケープしない
 
 
