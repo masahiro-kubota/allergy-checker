@@ -1,8 +1,9 @@
 import asyncio
-from time import time
+import time
+from time import time, sleep
 
 from dotenv import load_dotenv
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
 from openai import AsyncOpenAI
 
@@ -140,6 +141,13 @@ async def async_main(my_dish):
     }
     return elements_dict
 
+def generate_responses():
+    messages = ["Task 1 completed", "Task 2 completed", "Task 3 completed"]
+    for message in messages:
+        yield f"data: {message}\n\n"  # SSE形式でデータを送信
+        sleep(1)  # タスク間で擬似的に遅延を追加（デモ用）
+
+
 def create_app():
     my_app = Flask(__name__)
     CORS(my_app)
@@ -163,6 +171,13 @@ def create_app():
         except Exception as e:
             return jsonify({"error": str(e)}), 500
         
+
+    @my_app.route('/stream', methods=['GET'])
+    def stream():
+        # レスポンスをSSE形式にして返す
+        return Response(generate_responses(), content_type='text/event-stream')
+
+
     return my_app
 
 app = create_app()
