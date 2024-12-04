@@ -157,7 +157,8 @@ async def async_create_tasks(my_dish):
     for completed_task in asyncio.as_completed(task1):
         key, result = await completed_task
         my_dict[key] = result
-        yield json.dumps({key: result}, ensure_ascii=False) + "\n"  # 日本語をエスケープしない
+        yield f"data: {json.dumps({'type': key, 'result': result}, ensure_ascii=False)}\n\n"  # 日本語をエスケープしない
+
     print(my_dict)
     #results1 = await asyncio.gather(*task1)
     # TODO 原材料と火が通っているかの確認は並行して処理できるからここでgatherする必要がない。
@@ -175,9 +176,9 @@ async def async_create_tasks(my_dish):
     for completed_task in asyncio.as_completed(tasks2):
         key, result = await completed_task
         my_dict[key] = result
-        yield json.dumps({key: result}) + "\n"
-    final_answer = my_dict["white_list_tf"] or (my_dict["egg_tf"] and my_dict["potato_tf"] and my_dict["raw_vegetables_tf"])
-    yield json.dumps({"final_answer": final_answer}, ensure_ascii=False) + "\n"  # 日本語をエスケープしない
+        yield f"data: {json.dumps({'type': key, 'result': result}, ensure_ascii=False)}\n\n"  # 日本語をエスケープしない
+    result = my_dict["white_list_tf"] or (my_dict["egg_tf"] and my_dict["potato_tf"] and my_dict["raw_vegetables_tf"])
+    yield f"data: {json.dumps({'type': 'safe_to_eat', 'result': result}, ensure_ascii=False)}\n\n"  # 日本語をエスケープしない
 
 
 def generate_responses():
@@ -217,15 +218,20 @@ def create_app():
         # レスポンスをSSE形式にして返す
         return Response(generate_responses(), content_type='text/event-stream')
 
-    @my_app.route('/check_allergy_stream', methods=['POST'])
+    @my_app.route('/check_allergy_stream', methods=['GET'])
     async def check_allergy_stream():
-        data = await request.get_json()
-        dish_name = data.get("dish_name")
+        # クエリパラメータから "dish_name" を取得
+        dish_name = request.args.get("dish_name")  # GET リクエストでは request.args を使用
         load_dotenv()
         if not dish_name:
             return jsonify({"error": "Dish name is required"}), 400
-        # SSEでレスポンスをストリームとして返す
-        return Response(async_create_tasks(dish_name), mimetype='text/event-stream')
+
+        async def stream():
+            async for chunk in async_create_tasks(dish_name):
+                yield chunk.encode("utf-8")  # UTF-8 にエンコード
+
+        return Response(stream(), mimetype='text/event-stream')
+
 
 
     return my_app
