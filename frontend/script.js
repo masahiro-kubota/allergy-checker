@@ -8,6 +8,11 @@ document.getElementById("allergyForm").addEventListener("submit", async function
   const checkPotato = document.getElementById("checkPotato");
   const checkRawVegetable = document.getElementById("checkRawVegetable");
   const checkWhiteListDishes = document.getElementById("checkWhiteListDishes");
+  const loadingSpinner = document.getElementById("loadingSpinner"); // スピナー要素
+  const checkMark = document.getElementById("checkMark");
+  const crossMark = document.getElementById("crossMark");
+
+
 
   // 初期化
   resultDiv.querySelector("#safeToEat").textContent = "Checking...";
@@ -15,11 +20,15 @@ document.getElementById("allergyForm").addEventListener("submit", async function
   checkPotato.textContent = "";
   checkRawVegetable.textContent = "";
   checkWhiteListDishes.textContent = "";
+  loadingSpinner.style.display = "block"; // スピナーを表示
+  checkMark.style.display = "none"; // チェックマークを非表示
+  crossMark.style.display = "none"; // クロスマークを非表示
+  
 
   try {
       // サーバー送信イベント (SSE) を使って結果を逐次受信
       base_url = 'https://allergy-checker.onrender.com'; // or 'http://127.0.0.1:8000'
-      //base_url = 'http://127.0.0.1:8000'
+      base_url = 'http://127.0.0.1:8000'
       const eventSource = new EventSource(`${base_url}/check_allergy_stream?dish_name=${encodeURIComponent(dishName)}`);
 
       eventSource.onmessage = function (event) {
@@ -38,24 +47,32 @@ document.getElementById("allergyForm").addEventListener("submit", async function
               if (data.result) {
                 resultDiv.querySelector("#safeToEat").textContent = "Safe to eat!";
                 resultDiv.classList.add("safe");
+                loadingSpinner.style.display = "none";
+                checkMark.style.display = "block"; // チェックマークを表示
             } else {
                 resultDiv.querySelector("#safeToEat").textContent = "Not safe to eat!";
                 resultDiv.classList.add("not-safe");
-
-              // 最後にイベントを閉じる
-              eventSource.close();
+                loadingSpinner.style.display = "none";
+                crossMark.style.display = "block";
             }
+            
+            // 最後にイベントを閉じる
+            eventSource.close();
           }
       };
 
       eventSource.onerror = function () {
           safeToEat.textContent = "Error occurred while checking. Please try again.";
           safeToEat.className = "not-safe";
+          loadingSpinner.style.display = "none";
+          crossMark.style.display = "none";
           eventSource.close();
       };
   } catch (error) {
       console.error(error);
       safeToEat.textContent = "Unexpected error occurred.";
       safeToEat.className = "not-safe";
+      loadingSpinner.style.display = "none"; // スピナーを非表示
+      crossMark.style.display = "none"; // チェックマークを非表示
   }
 });

@@ -14,7 +14,11 @@
             <input type="text" id="dishName" name="dishName" placeholder="e.g., Peanut Butter Sandwich" required>
             <button type="submit">Check</button>
         </form>
+        <div class="spinner" id="loadingSpinner"></div>
+        <div class="checkmark" id="checkMark" style="display: none;">✔</div>
+        <div class="crossmark" id="crossMark" style="display: none;">✖</div>
         <div id="result">
+            <div class="spinner" id="loadingSpinner"></div>
             <p id="safeToEat"></p>
             <ul>
                 <li id="checkEgg"></li>
