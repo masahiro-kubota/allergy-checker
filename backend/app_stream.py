@@ -4,7 +4,8 @@ import time
 from time import time, sleep
 
 from dotenv import load_dotenv
-from quart import Quart, request, jsonify, Response
+import sqlite3
+from quart import Quart, request, jsonify, Response, render_template
 from quart_cors import cors
 from openai import AsyncOpenAI
 
@@ -148,7 +149,43 @@ async def create_tasks_async(my_dish):
         yield f"data: {json.dumps({'type': key, 'result': result}, ensure_ascii=False)}\n\n"  # 日本語をエスケープしない
     result = my_dict["white_list_tf"] or (my_dict["egg_tf"] and my_dict["potato_tf"] and my_dict["raw_vegetables_tf"] and my_dict["nuts_tf"] and my_dict["burdock_tf"] and my_dict["lotus_tf"] and my_dict["Konjac_tf"] and my_dict["buckwheat_tf"])
     yield f"data: {json.dumps({'type': 'safe_to_eat', 'result': result}, ensure_ascii=False)}\n\n"  # 日本語をエスケープしない
+    my_dict["dish_name"] = my_dish
+    my_dict["safe_to_eat"] = result
+    add_to_database(my_dict)
 
+def add_to_database(data_dict):
+    """
+    data_dict をデータベースに追加します。
+
+    Parameters:
+        data_dict (dict): type をキー、result を値とする辞書
+    """
+    try:
+        with sqlite3.connect("data/allergies.db") as conn:
+            cursor = conn.cursor()
+
+            # テーブルを作成（必要に応じて）
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS allergies (
+                    type TEXT,
+                    result TEXT
+                )
+            ''')
+
+            # 辞書の内容をデータベースに挿入
+            for type_key, result_value in data_dict.items():
+                cursor.execute('''
+                    INSERT INTO allergies (type, result)
+                    VALUES (?, ?)
+                ''', (type_key, str(result_value)))  # result を文字列として格納
+            
+            # コミットして保存
+            conn.commit()
+
+        return {"message": "データが正常に登録されました"}
+
+    except sqlite3.Error as e:
+        return {"message": f"データベースエラー: {e}"}
 
 def generate_responses():
     messages = ["Task 1 completed", "Task 2 completed", "Task 3 completed"]
@@ -180,6 +217,28 @@ def create_app():
                 yield chunk.encode("utf-8")  # UTF-8 にエンコード
 
         return Response(stream(), mimetype='text/event-stream')
+
+    @my_app.route('/info', methods=['GET'])
+    async def get_all_allergies():
+        try:
+            with sqlite3.connect("data/allergies.db") as conn:
+                cursor = conn.cursor()
+                
+                # クエリを実行してデータを取得
+                cursor.execute("SELECT type, result FROM allergies")
+                rows = cursor.fetchall()
+
+                # データを辞書形式に変換
+                data = [{"type": row[0], "result": row[1]} for row in rows]
+
+            # JSON形式でデータを返す
+            return await render_template('info.html', data=data)
+
+        except sqlite3.Error as e:
+            # エラーハンドリング
+            return jsonify({
+                "message": f"データベースエラー: {e}"
+            }), 500
 
 
 
