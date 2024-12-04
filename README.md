@@ -17,11 +17,7 @@ $ uvicorn backend.app_stream:app --workers 4 --log-level debug --host 127.0.0.1 
 
 ```
 #check the operation of the backend server
-$ curl -X POST http://127.0.0.1:8000/check_allergy_stream \
--H "Content-Type: application/json" \
--d '{
-    "dish_name": "ポテトチップス"
-}'
+$ curl "http://127.0.0.1:8000/check_allergy_stream?dish_name=%E3%81%8A%E3%81%A7%EF%BD%8E"
 
 
 ```

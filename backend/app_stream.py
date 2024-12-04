@@ -135,10 +135,10 @@ async def create_tasks_async(my_dish):
     task2_2 = asyncio.create_task(check_ingredient_async(my_dish, "さつまいも以外の芋類", "potato", my_dish_details, async_client, 1, start_time))
     task2_3 = asyncio.create_task(check_ingredient_async(my_dish, "加熱処理されていない野菜", "raw_vegetables", my_dish_details, async_client, 1, start_time))
     task2_4 = asyncio.create_task(check_ingredient_async(my_dish, "ナッツ", "nuts", my_dish_details, async_client, 1, start_time))
-    task2_5 = asyncio.create_task(check_ingredient_async(my_dish, "ごぼう", "raw_vegetables", my_dish_details, async_client, 1, start_time))
-    task2_6 = asyncio.create_task(check_ingredient_async(my_dish, "れんこん", "raw_vegetables", my_dish_details, async_client, 1, start_time))
-    task2_7 = asyncio.create_task(check_ingredient_async(my_dish, "こんにゃく", "raw_vegetables", my_dish_details, async_client, 1, start_time))
-    task2_8 = asyncio.create_task(check_ingredient_async(my_dish, "そば", "raw_vegetables", my_dish_details, async_client, 1, start_time))
+    task2_5 = asyncio.create_task(check_ingredient_async(my_dish, "ごぼう", "burdock", my_dish_details, async_client, 1, start_time))
+    task2_6 = asyncio.create_task(check_ingredient_async(my_dish, "れんこん", "lotus", my_dish_details, async_client, 1, start_time))
+    task2_7 = asyncio.create_task(check_ingredient_async(my_dish, "こんにゃく", "konjac", my_dish_details, async_client, 1, start_time))
+    task2_8 = asyncio.create_task(check_ingredient_async(my_dish, "そば", "buckwheat", my_dish_details, async_client, 1, start_time))
     #task2_3 = asyncio.create_task(check_white_list_async(my_dish, "ラーメン", async_client, 3, start_time))
     # TODO 追加確認材料 ナッツ類　甲殻類　ごぼう　れんこん　こんにゃく　そば　
     # 追加ホワイトリスト　卵（ラーメン）　イモ類（さつまいも）　果物（柑橘類　いちご　ぶどう　パイナップル　りんご　缶詰）豆（醤油　味噌）　甲殻類（えびせん　桜えび）　　
@@ -147,7 +147,7 @@ async def create_tasks_async(my_dish):
         key, result = await completed_task
         my_dict[key] = result
         yield f"data: {json.dumps({'type': key, 'result': result}, ensure_ascii=False)}\n\n"  # 日本語をエスケープしない
-    result = my_dict["white_list_tf"] or (my_dict["egg_tf"] and my_dict["potato_tf"] and my_dict["raw_vegetables_tf"])
+    result = my_dict["white_list_tf"] or (my_dict["egg_tf"] and my_dict["potato_tf"] and my_dict["raw_vegetables_tf"] and my_dict["nuts_tf"] and my_dict["burdock_tf"] and my_dict["lotus_tf"] and my_dict["Konjac_tf"] and my_dict["buckwheat_tf"])
     yield f"data: {json.dumps({'type': 'safe_to_eat', 'result': result}, ensure_ascii=False)}\n\n"  # 日本語をエスケープしない
 
 
