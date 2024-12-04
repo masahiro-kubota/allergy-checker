@@ -49,23 +49,23 @@ document.getElementById("allergyForm").addEventListener("submit", async function
 
           // フィールドごとに更新
           if (data.type === "egg_tf") {
-              checkEgg.textContent = `Egg allergy check: ${data.result ? "Pass" : "Fail"}`;
+              checkEgg.textContent = `Egg allergy check: ${data.result ? "○" : "×"}`;
           } else if (data.type === "potato_tf") {
-              checkPotato.textContent = `Potato allergy check: ${data.result ? "Pass" : "Fail"}`;
+              checkPotato.textContent = `Potato allergy check: ${data.result ? "○" : "×"}`;
           } else if (data.type === "raw_vegetables_tf") {
-              checkRawVegetable.textContent = `Raw vegetable allergy check: ${data.result ? "Pass" : "Fail"}`;
+              checkRawVegetable.textContent = `Raw vegetable allergy check: ${data.result ? "○" : "×"}`;
           } else if (data.type === "nuts_tf") {
-              checkNuts.textContent = `Nuts allergy check: ${data.result ? "Pass" : "Fail"}`;
+              checkNuts.textContent = `Nuts allergy check: ${data.result ? "○" : "×"}`;
           } else if (data.type === "burdock_tf") {
-              checkBurdock.textContent = `Burdock allergy check: ${data.result ? "Pass" : "Fail"}`;
+              checkBurdock.textContent = `Burdock allergy check: ${data.result ? "○" : "×"}`;
           } else if (data.type === "lotus_tf") {
-              checkLotus.textContent = `Lotus allergy check: ${data.result ? "Pass" : "Fail"}`;
+              checkLotus.textContent = `Lotus allergy check: ${data.result ? "○" : "×"}`;
           } else if (data.type === "konjac_tf") {
-              checkKonjac.textContent = `Konjac allergy check: ${data.result ? "Pass" : "Fail"}`;
+              checkKonjac.textContent = `Konjac allergy check: ${data.result ? "○" : "×"}`;
           } else if (data.type === "buckwheat_tf") {
-              checkBuckwheat.textContent = `Buckwheat allergy check: ${data.result ? "Pass" : "Fail"}`;    
+              checkBuckwheat.textContent = `Buckwheat allergy check: ${data.result ? "○" : "×"}`;    
           } else if (data.type === "white_list_tf") {
-              checkWhiteListDishes.textContent = `White listed dish check: ${data.result ? "Pass" : "Fail"}`;   
+              checkWhiteListDishes.textContent = `White listed dish check: ${data.result ? "×" : "○"}`;   
           } else if (data.type === "safe_to_eat") {
               if (data.result) {
                 resultDiv.querySelector("#safeToEat").textContent = "Safe to eat!";

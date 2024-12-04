@@ -56,9 +56,7 @@ async def ask_dish_details_async(dish_name, client, start_time):
       model="gpt-4o-mini",
       messages=[
         {"role": "user", "content": f"""
-{dish_name}に関して以下の質問に回答してください。
-
-原材料（10個）:
+{dish_name}を作る際に主に使用する食材や調理法について教えてください。
     """}],
       stream=False
     )
@@ -133,7 +131,7 @@ async def create_tasks_async(my_dish):
     print(my_dish_details)
     task2_1 = asyncio.create_task(check_ingredient_async(my_dish, "卵", "egg", my_dish_details, async_client, 1, start_time))
     task2_2 = asyncio.create_task(check_ingredient_async(my_dish, "さつまいも以外の芋類", "potato", my_dish_details, async_client, 1, start_time))
-    task2_3 = asyncio.create_task(check_ingredient_async(my_dish, "加熱処理されていない野菜", "raw_vegetables", my_dish_details, async_client, 1, start_time))
+    task2_3 = asyncio.create_task(check_ingredient_async(my_dish, "たくさんの加熱処理されていない野菜", "raw_vegetables", my_dish_details, async_client, 1, start_time))
     task2_4 = asyncio.create_task(check_ingredient_async(my_dish, "ナッツ", "nuts", my_dish_details, async_client, 1, start_time))
     task2_5 = asyncio.create_task(check_ingredient_async(my_dish, "ごぼう", "burdock", my_dish_details, async_client, 1, start_time))
     task2_6 = asyncio.create_task(check_ingredient_async(my_dish, "れんこん", "lotus", my_dish_details, async_client, 1, start_time))
@@ -147,7 +145,7 @@ async def create_tasks_async(my_dish):
         key, result = await completed_task
         my_dict[key] = result
         yield f"data: {json.dumps({'type': key, 'result': result}, ensure_ascii=False)}\n\n"  # 日本語をエスケープしない
-    result = my_dict["white_list_tf"] or (my_dict["egg_tf"] and my_dict["potato_tf"] and my_dict["raw_vegetables_tf"] and my_dict["nuts_tf"] and my_dict["burdock_tf"] and my_dict["lotus_tf"] and my_dict["Konjac_tf"] and my_dict["buckwheat_tf"])
+    result = my_dict["white_list_tf"] or (my_dict["egg_tf"] and my_dict["potato_tf"] and my_dict["raw_vegetables_tf"] and my_dict["nuts_tf"] and my_dict["burdock_tf"] and my_dict["lotus_tf"] and my_dict["konjac_tf"] and my_dict["buckwheat_tf"])
     yield f"data: {json.dumps({'type': 'safe_to_eat', 'result': result}, ensure_ascii=False)}\n\n"  # 日本語をエスケープしない
     my_dict["dish_name"] = my_dish
     my_dict["safe_to_eat"] = result
