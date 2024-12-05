@@ -10,11 +10,11 @@ EXPECTED_RESULTS = {
     "カレー": False,
     "ラーメン": True,
     "ピザ": True,
-    "ミートソーススパゲッティ": True
-    "寿司": False
-    "味噌汁": True
-    "サンドイッチ": False
-    "餃子": True
+    "ミートソーススパゲッティ": True,
+    "寿司": False,
+    "味噌汁": True,
+    "サンドイッチ": False,
+    "餃子": True,
     "ハンバーグ": False
 }
 
