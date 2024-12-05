@@ -65,7 +65,7 @@ document.getElementById("allergyForm").addEventListener("submit", async function
           } else if (data.type === "buckwheat_tf") {
               checkBuckwheat.textContent = `Buckwheat: ${data.result ? "○" : "×"}`;    
           } else if (data.type === "white_list_tf") {
-              checkWhiteListDishes.textContent = `White listed dish: ${data.result ? "×" : "○"}`;   
+              checkWhiteListDishes.textContent = `White listed dish: ${data.result ? "○" : "×"}`;   
           } else if (data.type === "safe_to_eat") {
               if (data.result) {
                 resultDiv.querySelector("#safeToEat").textContent = "Safe to eat!";
