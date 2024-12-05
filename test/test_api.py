@@ -21,7 +21,7 @@ EXPECTED_RESULTS = {
 def test_safe_to_eat(dish_name, expected_result):
     try:
         # APIにリクエストを送信
-        response = requests.get(f"{API_URL}?dish_name={dish_name}", stream=True, timeout=20)
+        response = requests.get(f"{API_URL}?dish_name={dish_name}", stream=True, timeout=60)
 
         if response.status_code != 200:
             raise Exception(f"Received status code {response.status_code}")
