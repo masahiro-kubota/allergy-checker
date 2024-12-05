@@ -21,4 +21,4 @@ $ curl "http://127.0.0.1:8000/check_allergy_stream?dish_name=%E3%81%8A%E3%81%A7%
 
 
 ```
-![alt text](image.png)
+![説明gif](images/sample.gif)
