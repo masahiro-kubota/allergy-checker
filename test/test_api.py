@@ -9,7 +9,13 @@ EXPECTED_RESULTS = {
     "おでん": False,
     "カレー": False,
     "ラーメン": True,
-    ""
+    "ピザ": True,
+    "ミートソーススパゲッティ": True
+    "寿司": False
+    "味噌汁": True
+    "サンドイッチ": False
+    "餃子": True
+    "ハンバーグ": False
 }
 
 def test_safe_to_eat(dish_name, expected_result):
