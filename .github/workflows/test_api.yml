@@ -23,4 +23,4 @@ jobs:
         run: pip install requests
 
       - name: Run API test
-        run: python test_api.py
+        run: python test/test_api.py
