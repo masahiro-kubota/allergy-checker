@@ -91,9 +91,7 @@ async def check_white_list_dish_async(dish_name, white_list, client, num, start_
       model="gpt-4o-mini",
       messages=[
         {"role": "user", "content": f"""
-{dish_name}は以下の料理に含まれるかをTrue/Falseのみで答えてください。
-
-{white_list}
+{dish_name}は{white_list}ですか？True/Falseのみで答えてください。
     """}])
     llm_response = response.choices[0].message.content
     final_response = check_true_false(llm_response)
