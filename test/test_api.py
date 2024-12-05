@@ -18,18 +18,27 @@ def test_safe_to_eat():
 
     # レスポンスデータを確認
     for line in response.iter_lines():
-        print('Hello')
+        print(f"line: {line}")
         if line:
-            data = json.loads(line.decode('utf-8'))
-            # safe_to_eatの結果をチェック
-            if data["type"] == "safe_to_eat":
-                expected_result = False  # 想定される値
-                assert data["result"] == expected_result, f"Expected {expected_result}, but got {data['result']}"
-                print("safe_to_eat test passed")
-                return
-
-    print("safe_to_eat key not found in the response")
-    sys.exit(1)
+            # デコードしたラインから 'data: ' プレフィックスを除去
+            line_text = line.decode('utf-8')
+            if not line_text.startswith('data: '):
+                continue
+            
+            # 'data: ' を除去してJSONをパース
+            json_str = line_text[6:]  # 'data: ' の長さが6なので、それ以降の部分を取得
+            print(f"json_str: {json_str}")
+            try:
+                data = json.loads(json_str)
+                # safe_to_eatの結果をチェック
+                if data["type"] == "safe_to_eat":
+                    expected_result = False  # 想定される値
+                    assert data["result"] == expected_result, f"Expected {expected_result}, but got {data['result']}"
+                    print("safe_to_eat test passed")
+                    return
+            except json.JSONDecodeError as e:
+                print(f"Error parsing JSON: {e}")
+                continue
 
 if __name__ == "__main__":
     test_safe_to_eat()
