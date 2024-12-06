@@ -43,15 +43,15 @@ document.getElementById("allergyForm").addEventListener("submit", async function
 
       //base_url = 'https://allergy-checker.onrender.com'; // or 'http://127.0.0.1:8000'
       //base_url = 'http://127.0.0.1:8000'
-      if (window.location.hostname === "https://allergy-checker-dev.vercel.app/") {
-        // dev環境の場合
-        base_url = "https://allergy-checker-1.onrender.com";
+      if (window.location.hostname === "http://localhost:5000") {
+        // ローカル環境の場合
+        base_url = "http://localhost:8000";
     } else if (window.location.hostname === "https://allergy-checker.vercel.app/") {
         // main環境の場合
         base_url = "https://allergy-checker.onrender.com";
     } else {
         // ローカルやその他の環境
-        base_url = "http://localhost:8000";
+        base_url = "https://allergy-checker-1.onrender.com";
     }
       const eventSource = new EventSource(`${base_url}/check_allergy_stream?dish_name=${encodeURIComponent(dishName)}`);
 
