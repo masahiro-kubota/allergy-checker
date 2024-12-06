@@ -7,7 +7,7 @@ on:
   pull_request:
     types:
       - labeled
-      - symchronize
+      - synchronize
       
 jobs:
   test:
