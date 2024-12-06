@@ -5,12 +5,19 @@ on:
     branches:
       - main
   pull_request:
-
+    types:
+      - labeled
+      - synchronize
+      
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check if the label is 'api-test'
+        run: echo "Label is ${{ github.event.label.name }}"
+        if: ${{ github.event.label.name == 'api-test' }}
+        
       - name: Checkout repository
         uses: actions/checkout@v3
 
