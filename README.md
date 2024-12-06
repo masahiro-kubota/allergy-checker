@@ -1,6 +1,8 @@
 I have many allergies.
 Check if I can eat that dish.
 
+![説明gif](images/sample.gif)
+
 ```
 # frontend
 $ python3 -m http.server 5000 -d frontend
@@ -21,4 +23,3 @@ $ curl "http://127.0.0.1:8000/check_allergy_stream?dish_name=%E3%81%8A%E3%81%A7%
 
 
 ```
-![説明gif](images/sample.gif)
