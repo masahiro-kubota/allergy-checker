@@ -15,12 +15,7 @@ jobs:
     steps:
       - name: Check if the label is 'api-test'
         run: echo "Label is ${{ github.event.label.name }}"
-        if: [[ "${{ github.event.label.name }}" == "api-test" ]]; then
-            echo "Label matches. Proceeding with the test."
-            echo "run_ci=true" >> $GITHUB_ENV
-          else
-            echo "Label does not match. Skipping the test."
-            echo "run_ci=false" >> $GITHUB_ENV
+        if: ${{ github.event.label.name == 'api-test' }}
         
       - name: Checkout repository
         uses: actions/checkout@v3
