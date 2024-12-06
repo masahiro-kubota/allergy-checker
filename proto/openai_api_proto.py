@@ -133,6 +133,7 @@ async def async_main(my_dish):
 
 
 
+
 if __name__=="__main__":
     load_dotenv()
     dish = input('料理名を入力してください: ')
