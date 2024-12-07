@@ -10,8 +10,6 @@ from quart_cors import cors
 from openai import AsyncOpenAI
 import yaml
 
-import os
-
 
 async def ask_dish_or_ingredient_coro(name, client, start_time):
     response = await client.chat.completions.create(
@@ -132,7 +130,6 @@ async def create_tasks_coro(my_dish):
 
     # Third Question
     tasks2 = []
-    print(f"Current working directory: {os.getcwd()}")
     with open("backend/allergen.yaml", "r", encoding="utf-8") as f:
         allergen_dict = yaml.safe_load(f)
     i = 0
@@ -158,7 +155,6 @@ async def create_tasks_coro(my_dish):
     and my_dict["lotus_tf"]
     and my_dict["konjac_tf"]
     and my_dict["buckwheat_tf"]
-    and my_dict["sweetpotato_tf"]
     and my_dict["crustacean_tf"]
     and my_dict["beef_tf"]
     and my_dict["raw_fish_tf"]
