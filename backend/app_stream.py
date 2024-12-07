@@ -21,7 +21,8 @@ async def ask_dish_or_ingredient_async(name, client, start_time):
     elapsed_time = end - start_time
     print(f"ask_dish_or_ingredient_async finished in {elapsed_time} seconds: {final_response}")
     key = "dish_tf"
-    return key, final_response
+    reason = None
+    return key, final_response, reason
 
 # 料理の作り方を確認
 async def ask_dish_details_async(dish_name, client, start_time):
@@ -68,7 +69,7 @@ async def check_ingredient_async(dish_name, ingredient, ingredient_key, data_dic
     return key, final_response
 
 
-async def check_white_list_dish_async(dish_name, white_list, client, num, start_time):
+async def check_white_list_dish_async(dish_name, white_list, white_list_key, reason, client, num, start_time):
     response = await client.chat.completions.create(
       model="gpt-4o-mini",
       messages=[
@@ -79,9 +80,11 @@ async def check_white_list_dish_async(dish_name, white_list, client, num, start_
     final_response = check_true_false(llm_response)
     end = time()
     elapsed_time = end - start_time
-    print(f"check_white_list_dish_async finished in {elapsed_time} seconds: {final_response}")
-    key = "white_list_tf"
-    return key, final_response
+    print(f"check_white_list_dish_async {num} finished in {elapsed_time} seconds: {final_response}")
+    key = white_list_key + "_tf"
+    if not final_response:
+        reason = None
+    return key, final_response, reason
 
 
 def check_true_false(response):
@@ -95,15 +98,21 @@ async def create_tasks_async(my_dish):
     async_client = AsyncOpenAI()
     start_time = time()
     my_dict = {}
+    my_dict["reason"] = None
 
     # First Question
     task0_1 = asyncio.create_task(ask_dish_or_ingredient_async(my_dish, async_client, start_time))
-    task0_2 = asyncio.create_task(check_white_list_dish_async(my_dish, "ラーメン", async_client, 3, start_time))
-    task0 = [task0_1, task0_2]
+    # TODO 追加ホワイトリスト　ラーメン　ドーナツ　からあげ　えびせんべい（粉末とか桜えびの小さいやつなら大丈夫）
+    task0_2 = asyncio.create_task(check_white_list_dish_async(my_dish, "ラーメン", "raamen", "麺に卵が入っていても少量なので大丈夫です！", async_client, 1, start_time))
+    task0_3 = asyncio.create_task(check_white_list_dish_async(my_dish, "ドーナツ", "doughnut", "卵が入っていても量的に1つまでなら大丈夫です！", async_client, 1, start_time))
+    task0_4 = asyncio.create_task(check_white_list_dish_async(my_dish, "からあげ", "fried_chicken", "衣に卵が入っていても少量なので大丈夫です！", async_client, 1, start_time))
+    task0 = [task0_1, task0_2, task0_3, task0_4]
     for completed_task in asyncio.as_completed(task0):
-        key, result = await completed_task
+        key, result, reason = await completed_task
         my_dict[key] = result
-        yield f"data: {json.dumps({'type': key, 'result': result}, ensure_ascii=False)}\n\n"  # 日本語をエスケープしない
+        if reason:
+            my_dict["reason"] = reason
+        yield f"data: {json.dumps({'type': key, 'result': result, 'reason': reason}, ensure_ascii=False)}\n\n"  # 日本語をエスケープしない
 
     # Second Question
     if my_dict["dish_tf"]:
@@ -130,16 +139,20 @@ async def create_tasks_async(my_dish):
     task2_9 = asyncio.create_task(check_ingredient_async(my_dish, "さつまいも", "sweetpotato", my_dict, async_client, 9, start_time))
     #task2_3 = asyncio.create_task(check_white_list_async(my_dish, "ラーメン", async_client, 3, start_time))
     # TODO 追加確認材料 甲殻類　牛肉　生魚　バナナ　桃　梨　メロン　スイカ　さくらんぼ　マンゴー
-    # 追加ホワイトリスト　卵（ラーメン）　ドーナツ　からあげ　えびせんべい（粉末とか桜えびの小さいやつならだい）
+    
     tasks2 = [task2_1, task2_2, task2_3, task2_4, task2_5, task2_6, task2_7, task2_8, task2_9]
     for completed_task in asyncio.as_completed(tasks2):
         key, result = await completed_task
         my_dict[key] = result
         yield f"data: {json.dumps({'type': key, 'result': result}, ensure_ascii=False)}\n\n"  # 日本語をエスケープしない
-    result = my_dict["white_list_tf"] or (my_dict["egg_tf"] and potato_logic(my_dict["potato_tf"], my_dict["sweetpotato_tf"]) and my_dict["raw_vegetables_tf"] and my_dict["nuts_tf"] and my_dict["burdock_tf"] and my_dict["lotus_tf"] and my_dict["konjac_tf"] and my_dict["buckwheat_tf"])
-    yield f"data: {json.dumps({'type': 'safe_to_eat', 'result': result}, ensure_ascii=False)}\n\n"  # 日本語をエスケープしない
-    my_dict["dish_name"] = my_dish
-    my_dict["safe_to_eat"] = result
+    result = (my_dict["raamen_tf"] or my_dict["doughnut_tf"] or my_dict["fried_chicken_tf"]) or (my_dict["egg_tf"] and potato_logic(my_dict["potato_tf"], my_dict["sweetpotato_tf"]) and my_dict["raw_vegetables_tf"] and my_dict["nuts_tf"] and my_dict["burdock_tf"] and my_dict["lotus_tf"] and my_dict["konjac_tf"] and my_dict["buckwheat_tf"])
+    if result:
+        if not my_dict["reason"]:
+            my_dict["reason"] = "食べられます！"
+    else:
+        my_dict["reason"] = "食べられません！"
+    yield f"data: {json.dumps({'type': 'safe_to_eat', 'result': result, 'reason': my_dict["reason"]}, ensure_ascii=False)}\n\n"  # 日本語をエスケープしない
+    
     add_to_database(my_dict)
 
 def potato_logic(potato, sweetpotato):
