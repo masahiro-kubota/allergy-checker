@@ -11,6 +11,7 @@ on:
       
 jobs:
   test:
+    if: ${{ github.event.label.name == 'api-test' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -28,6 +29,9 @@ jobs:
 
       - name: Install dependencies
         run: pip install requests
+
+      - name: Install dependencies
+        run: pip install pyyaml
 
       - name: Run API test
         run: python test/test_api.py

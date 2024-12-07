@@ -1,22 +1,16 @@
-import requests
 import json
+import sys
+
+import requests
+import yaml
 
 # API URL
 API_URL = "https://allergy-checker.onrender.com/check_allergy_stream"
 
 # 期待される結果
-EXPECTED_RESULTS = {
-    "おでん": False,
-    "カレー": False,
-    "ラーメン": True,
-    "ピザ": True,
-    "ミートソーススパゲッティ": True,
-    "寿司": False,
-    "味噌汁": True,
-    "サンドイッチ": False,
-    "餃子": True,
-    "ハンバーグ": False
-}
+
+with open("test/expected_results.yaml", "r", encoding="utf-8") as f:
+    EXPECTED_RESULTS = yaml.safe_load(f)
 
 def test_safe_to_eat(dish_name, expected_result):
     try:
@@ -63,5 +57,7 @@ if __name__ == "__main__":
         print("\nSome tests failed:")
         for dish, error in errors.items():
             print(f"- {dish}: {error}")
+        sys.exit(1)
     else:
         print("\nAll tests passed successfully!")
+        sys.exit(0)
