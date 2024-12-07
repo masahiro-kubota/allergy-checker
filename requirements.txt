@@ -4,7 +4,7 @@ aiofiles==24.1.0
     # via quart
 annotated-types==0.7.0
     # via pydantic
-anyio==4.6.2.post1
+anyio==4.7.0
     # via
     #   httpx
     #   openai
@@ -40,7 +40,7 @@ hpack==4.0.0
     # via h2
 httpcore==1.0.7
     # via httpx
-httpx==0.28.0
+httpx==0.28.1
     # via openai
 hypercorn==0.17.3
     # via quart
@@ -66,7 +66,7 @@ markupsafe==3.0.2
     #   jinja2
     #   quart
     #   werkzeug
-openai==1.56.2
+openai==1.57.0
     # via allergy-checker (pyproject.toml)
 priority==2.0.0
     # via hypercorn
@@ -75,6 +75,8 @@ pydantic==2.10.3
 pydantic-core==2.27.1
     # via pydantic
 python-dotenv==1.0.1
+    # via allergy-checker (pyproject.toml)
+pyyaml==6.0.2
     # via allergy-checker (pyproject.toml)
 quart==0.19.9
     # via
@@ -92,6 +94,7 @@ tqdm==4.67.1
     # via openai
 typing-extensions==4.12.2
     # via
+    #   anyio
     #   openai
     #   pydantic
     #   pydantic-core
