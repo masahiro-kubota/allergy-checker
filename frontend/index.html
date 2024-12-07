@@ -10,27 +10,24 @@
     <div class="container">
         <h1>Allergy Checker</h1>
         <form id="allergyForm">
-            <label for="dishName">Enter Dish Name:</label>
-            <input type="text" id="dishName" name="dishName" placeholder="e.g., Peanut Butter Sandwich" required>
+            <input type="text" id="dishName" name="dishName" placeholder="e.g., オムライス" required>
             <button type="submit">Check</button>
         </form>
-        <div class="spinner" id="loadingSpinner"></div>
-        <div class="checkmark" id="checkMark" style="display: none;">○</div>
-        <div class="crossmark" id="crossMark" style="display: none;">×</div>
         <div id="result">
+            <p id="safeToEat">Enter Dish Name</p>
+            <div class="questionmark" id="questionMark" style="display: block;">?</div>
+            <div class="checkmark" id="checkMark" style="display: none;">○</div>
+            <div class="crossmark" id="crossMark" style="display: none;">×</div>
             <div class="spinner" id="loadingSpinner"></div>
-            <p id="safeToEat"></p>
-            <ul>
-                <li id="checkEgg"></li>
-                <li id="checkPotato"></li>
-                <li id="checkRawVegetable"></li>
-                <li id="checkNuts"></li>
-                <li id="checkBurdock"></li>
-                <li id="checkLotus"></li>
-                <li id="checkKonjac"></li>
-                <li id="checkBuckwheat"></li>
-                <li id="checkWhiteListDishes"></li>
-            </ul>
+            <div>たまご: <span id="checkEgg"></span></div>
+            <div>芋: <span id="checkPotato"></span></div>
+            <div>生野菜: <span id="checkRawVegetable"></span></div>
+            <div>ナッツ類: <span id="checkNuts"></span></div>
+            <div>ごぼう: <span id="checkBurdock"></span></div>
+            <div>れんこん: <span id="checkLotus"></span></div>
+            <div>こんにゃく: <span id="checkKonjac"></span></div>
+            <div>そば: <span id="checkBuckwheat"></span></div>
+            <div>ホワイトリスト: <span id="checkWhiteListDishes"></span></div>
         </div>
     </div>
     <script src="script.js"></script>

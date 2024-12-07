@@ -16,6 +16,7 @@ document.getElementById("allergyForm").addEventListener("submit", async function
   const checkBuckwheat = document.getElementById("checkBuckwheat");
 
   const loadingSpinner = document.getElementById("loadingSpinner"); // スピナー要素
+  const questionMark = document.getElementById("questionMark");
   const checkMark = document.getElementById("checkMark");
   const crossMark = document.getElementById("crossMark");
 
@@ -23,7 +24,7 @@ document.getElementById("allergyForm").addEventListener("submit", async function
 
   // 初期化
   resultDiv.classList.remove("safe", "not-safe");
-  resultDiv.querySelector("#safeToEat").textContent = "Checking...";
+  safeToEat.textContent = "Checking...";
   checkEgg.textContent = "";
   checkPotato.textContent = "";
   checkRawVegetable.textContent = "";
@@ -34,6 +35,7 @@ document.getElementById("allergyForm").addEventListener("submit", async function
   checkKonjac.textContent = "";
   checkBuckwheat.textContent = "";
   loadingSpinner.style.display = "block"; // スピナーを表示
+  questionMark.style.display = "none"; // チェックマークを非表示
   checkMark.style.display = "none"; // チェックマークを非表示
   crossMark.style.display = "none"; // クロスマークを非表示
   
@@ -65,31 +67,31 @@ document.getElementById("allergyForm").addEventListener("submit", async function
 
           // フィールドごとに更新
           if (data.type === "egg_tf") {
-              checkEgg.textContent = `Egg: ${data.result ? "○" : "×"}`;
+              checkEgg.textContent = `${data.result ? "○" : "×"}`;
           } else if (data.type === "potato_tf") {
-              checkPotato.textContent = `Potato: ${data.result ? "○" : "×"}`;
+              checkPotato.textContent = `${data.result ? "○" : "×"}`;
           } else if (data.type === "raw_vegetables_tf") {
-              checkRawVegetable.textContent = `Raw vegetable: ${data.result ? "○" : "×"}`;
+              checkRawVegetable.textContent = `${data.result ? "○" : "×"}`;
           } else if (data.type === "nuts_tf") {
-              checkNuts.textContent = `Nuts: ${data.result ? "○" : "×"}`;
+              checkNuts.textContent = `${data.result ? "○" : "×"}`;
           } else if (data.type === "burdock_tf") {
-              checkBurdock.textContent = `Burdock: ${data.result ? "○" : "×"}`;
+              checkBurdock.textContent = `${data.result ? "○" : "×"}`;
           } else if (data.type === "lotus_tf") {
-              checkLotus.textContent = `Lotus: ${data.result ? "○" : "×"}`;
+              checkLotus.textContent = `${data.result ? "○" : "×"}`;
           } else if (data.type === "konjac_tf") {
-              checkKonjac.textContent = `Konjac: ${data.result ? "○" : "×"}`;
+              checkKonjac.textContent = `${data.result ? "○" : "×"}`;
           } else if (data.type === "buckwheat_tf") {
-              checkBuckwheat.textContent = `Buckwheat: ${data.result ? "○" : "×"}`;    
+              checkBuckwheat.textContent = `${data.result ? "○" : "×"}`;    
           } else if (data.type === "white_list_tf") {
-              checkWhiteListDishes.textContent = `White listed dish: ${data.result ? "○" : "×"}`;   
+              checkWhiteListDishes.textContent = `${data.result ? "○" : "×"}`;   
           } else if (data.type === "safe_to_eat") {
               if (data.result) {
-                resultDiv.querySelector("#safeToEat").textContent = "Safe to eat!";
+                safeToEat.textContent = "食べられます!";
                 resultDiv.classList.add("safe");
                 loadingSpinner.style.display = "none";
                 checkMark.style.display = "block"; // チェックマークを表示
             } else {
-                resultDiv.querySelector("#safeToEat").textContent = "Not safe to eat!";
+              safeToEat.textContent = "食べられません!";
                 resultDiv.classList.add("not-safe");
                 loadingSpinner.style.display = "none";
                 crossMark.style.display = "block";
@@ -105,6 +107,7 @@ document.getElementById("allergyForm").addEventListener("submit", async function
           safeToEat.className = "not-safe";
           loadingSpinner.style.display = "none";
           crossMark.style.display = "none";
+          questionMark.style.display = "block";
           eventSource.close();
       };
   } catch (error) {
@@ -113,5 +116,6 @@ document.getElementById("allergyForm").addEventListener("submit", async function
       safeToEat.className = "not-safe";
       loadingSpinner.style.display = "none"; // スピナーを非表示
       crossMark.style.display = "none"; // チェックマークを非表示
+      questionMark.style.display = "block";
   }
 });

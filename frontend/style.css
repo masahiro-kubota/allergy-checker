@@ -92,3 +92,11 @@ button:hover {
   text-align: center;
   margin: 20px auto;
 }
+
+/* バツマークのスタイル */
+.questionmark {
+  font-size: 40px; /* サイズ調整 */
+  color: black !important; /* 赤色のバツマーク */
+  text-align: center;
+  margin: 20px auto;
+}
