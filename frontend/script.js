@@ -8,7 +8,6 @@ document.getElementById("allergyForm").addEventListener("submit", async function
   const checkEgg = document.getElementById("checkEgg");
   const checkPotato = document.getElementById("checkPotato");
   const checkRawVegetable = document.getElementById("checkRawVegetable");
-  const checkWhiteListDishes = document.getElementById("checkWhiteListDishes");
   const checkNuts = document.getElementById("checkNuts");
   const checkBurdock = document.getElementById("checkBurdock");
   const checkLotus = document.getElementById("checkLotus");
@@ -28,7 +27,6 @@ document.getElementById("allergyForm").addEventListener("submit", async function
   checkEgg.textContent = "";
   checkPotato.textContent = "";
   checkRawVegetable.textContent = "";
-  checkWhiteListDishes.textContent = "";
   checkNuts.textContent = "";
   checkBurdock.textContent = "";
   checkLotus.textContent = "";
@@ -81,17 +79,15 @@ document.getElementById("allergyForm").addEventListener("submit", async function
           } else if (data.type === "konjac_tf") {
               checkKonjac.textContent = `${data.result ? "○" : "×"}`;
           } else if (data.type === "buckwheat_tf") {
-              checkBuckwheat.textContent = `${data.result ? "○" : "×"}`;    
-          } else if (data.type === "white_list_tf") {
-              checkWhiteListDishes.textContent = `${data.result ? "○" : "×"}`;   
+              checkBuckwheat.textContent = `${data.result ? "○" : "×"}`;
           } else if (data.type === "safe_to_eat") {
               if (data.result) {
-                safeToEat.textContent = "食べられます!";
+                safeToEat.textContent = `${data.reason}`;;
                 resultDiv.classList.add("safe");
                 loadingSpinner.style.display = "none";
                 checkMark.style.display = "block"; // チェックマークを表示
             } else {
-              safeToEat.textContent = "食べられません!";
+                safeToEat.textContent = `${data.reason}`;;
                 resultDiv.classList.add("not-safe");
                 loadingSpinner.style.display = "none";
                 crossMark.style.display = "block";
