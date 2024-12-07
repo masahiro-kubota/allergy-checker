@@ -8,6 +8,10 @@ import sqlite3
 from quart import Quart, request, jsonify, Response, render_template
 from quart_cors import cors
 from openai import AsyncOpenAI
+import yaml
+
+import os
+
 
 async def ask_dish_or_ingredient_coro(name, client, start_time):
     response = await client.chat.completions.create(
@@ -127,20 +131,19 @@ async def create_tasks_coro(my_dish):
         print(my_dict)
 
     # Third Question
-    task2_1 = asyncio.create_task(check_ingredient_coro(my_dish, "卵", "egg", my_dict, async_client, 1, start_time))
-    task2_2 = asyncio.create_task(check_ingredient_coro(my_dish, "芋", "potato", my_dict, async_client, 2, start_time))
-    task2_3 = asyncio.create_task(check_ingredient_coro(my_dish, "たくさんの加熱処理されていない野菜", "raw_vegetables", my_dict, async_client, 3, start_time))
-    task2_4 = asyncio.create_task(check_ingredient_coro(my_dish, "豆・ナッツ", "nuts", my_dict, async_client, 4, start_time))
-    task2_5 = asyncio.create_task(check_ingredient_coro(my_dish, "ごぼう", "burdock", my_dict, async_client, 5, start_time))
-    task2_6 = asyncio.create_task(check_ingredient_coro(my_dish, "れんこん", "lotus", my_dict, async_client, 6, start_time))
-    task2_7 = asyncio.create_task(check_ingredient_coro(my_dish, "こんにゃく", "konjac", my_dict, async_client, 7, start_time))
-    task2_8 = asyncio.create_task(check_ingredient_coro(my_dish, "そば", "buckwheat", my_dict, async_client, 8, start_time))
-    # ジャガイモとさつまいもを同時に含む場合対応できない。さつまいもはホワイトリスト的に使っているから注意。
-    task2_9 = asyncio.create_task(check_ingredient_coro(my_dish, "さつまいも", "sweetpotato", my_dict, async_client, 9, start_time))
+    tasks2 = []
+    print(f"Current working directory: {os.getcwd()}")
+    with open("backend/allergen.yaml", "r", encoding="utf-8") as f:
+        allergen_dict = yaml.safe_load(f)
+    i = 0
+    for allergen_name, allergen_eng in allergen_dict.items():
+        i += 1
+        # ジャガイモとさつまいもを同時に含む場合対応できない。さつまいもはホワイトリスト的に使っているから注意。
+        tasks2.append(asyncio.create_task(check_ingredient_coro(my_dish, allergen_name, allergen_eng, my_dict, async_client, i, start_time)))
+    
     #task2_3 = asyncio.create_task(check_white_list_async(my_dish, "ラーメン", async_client, 3, start_time))
     # TODO 追加確認材料 甲殻類　牛肉　生魚　バナナ　桃　梨　メロン　スイカ　さくらんぼ　マンゴー
-    
-    tasks2 = [task2_1, task2_2, task2_3, task2_4, task2_5, task2_6, task2_7, task2_8, task2_9]
+
     for completed_task in asyncio.as_completed(tasks2):
         key, result = await completed_task
         my_dict[key] = result
