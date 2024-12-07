@@ -140,9 +140,6 @@ async def create_tasks_coro(my_dish):
         i += 1
         # ジャガイモとさつまいもを同時に含む場合対応できない。さつまいもはホワイトリスト的に使っているから注意。
         tasks2.append(asyncio.create_task(check_ingredient_coro(my_dish, allergen_name, allergen_eng, my_dict, async_client, i, start_time)))
-    
-    #task2_3 = asyncio.create_task(check_white_list_async(my_dish, "ラーメン", async_client, 3, start_time))
-    # TODO 追加確認材料 甲殻類　牛肉　生魚　バナナ　桃　梨　メロン　スイカ　さくらんぼ　マンゴー
 
     for completed_task in asyncio.as_completed(tasks2):
         key, result = await completed_task
@@ -151,7 +148,10 @@ async def create_tasks_coro(my_dish):
     result = (my_dict["raamen_tf"] or my_dict["doughnut_tf"] or my_dict["fried_chicken_tf"]) or (my_dict["egg_tf"] and potato_logic(my_dict["potato_tf"], my_dict["sweetpotato_tf"]) and my_dict["raw_vegetables_tf"] and my_dict["nuts_tf"] and my_dict["burdock_tf"] and my_dict["lotus_tf"] and my_dict["konjac_tf"] and my_dict["buckwheat_tf"])
     if result:
         if not my_dict["reason"]:
-            my_dict["reason"] = "食べられます！"
+            if not my_dict["sweetpotato_tf"]:
+                my_dict["reason"] = "芋は食べられないけど、さつまいもは大丈夫です！"
+            else:
+                my_dict["reason"] = "食べられます！"
     else:
         my_dict["reason"] = "食べられません！"
     yield f"data: {json.dumps({'type': 'safe_to_eat', 'result': result, 'reason': my_dict["reason"]}, ensure_ascii=False)}\n\n"  # 日本語をエスケープしない
