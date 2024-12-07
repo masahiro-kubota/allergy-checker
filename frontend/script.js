@@ -23,6 +23,9 @@ document.getElementById("allergyForm").addEventListener("submit", async function
   const checkCherry = document.getElementById("checkCherry");
   const checkMango = document.getElementById("checkMango");
   const checkBanana = document.getElementById("checkBanana");
+  const checkToufu = document.getElementById("checkToufu");
+  const checkChocolate = document.getElementById("checkChocolate");
+  const checkShell = document.getElementById("checkShell");
 
   const loadingSpinner = document.getElementById("loadingSpinner"); // スピナー要素
   const questionMark = document.getElementById("questionMark");
@@ -52,6 +55,9 @@ document.getElementById("allergyForm").addEventListener("submit", async function
   checkCherry.textContent = "";
   checkMango.textContent = "";
   checkBanana.textContent = "";
+  checkToufu.textContent = "";
+  checkChocolate.textContent = "";
+  checkShell.textContent = "";
 
 
 
@@ -123,6 +129,12 @@ document.getElementById("allergyForm").addEventListener("submit", async function
               checkMango.textContent = `${data.result ? "○" : "×"}`;
           } else if (data.type === "banana_tf") {
               checkBanana.textContent = `${data.result ? "○" : "×"}`;
+          } else if (data.type === "toufu_tf") {
+              checkToufu.textContent = `${data.result ? "○" : "×"}`;
+          } else if (data.type === "chocolate_tf") {
+              checkChocolate.textContent = `${data.result ? "○" : "×"}`;
+          }else if (data.type === "shell_tf") {
+              checkShell.textContent = `${data.result ? "○" : "×"}`;
           } else if (data.type === "safe_to_eat") {
               if (data.result) {
                 safeToEat.textContent = `${data.reason}`;;

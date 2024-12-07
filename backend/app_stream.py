@@ -145,7 +145,34 @@ async def create_tasks_coro(my_dish):
         key, result = await completed_task
         my_dict[key] = result
         yield f"data: {json.dumps({'type': key, 'result': result}, ensure_ascii=False)}\n\n"  # 日本語をエスケープしない
-    result = (my_dict["raamen_tf"] or my_dict["doughnut_tf"] or my_dict["fried_chicken_tf"]) or (my_dict["egg_tf"] and potato_logic(my_dict["potato_tf"], my_dict["sweetpotato_tf"]) and my_dict["raw_vegetables_tf"] and my_dict["nuts_tf"] and my_dict["burdock_tf"] and my_dict["lotus_tf"] and my_dict["konjac_tf"] and my_dict["buckwheat_tf"])
+    result = (
+    my_dict["raamen_tf"]
+    or my_dict["doughnut_tf"]
+    or my_dict["fried_chicken_tf"]
+) or (
+    my_dict["egg_tf"]
+    and potato_logic(my_dict["potato_tf"], my_dict["sweetpotato_tf"])
+    and my_dict["raw_vegetables_tf"]
+    and my_dict["nuts_tf"]
+    and my_dict["burdock_tf"]
+    and my_dict["lotus_tf"]
+    and my_dict["konjac_tf"]
+    and my_dict["buckwheat_tf"]
+    and my_dict["sweetpotato_tf"]
+    and my_dict["crustacean_tf"]
+    and my_dict["beef_tf"]
+    and my_dict["raw_fish_tf"]
+    and my_dict["peach_tf"]
+    and my_dict["pair_tf"]
+    and my_dict["melon_tf"]
+    and my_dict["watermelon_tf"]
+    and my_dict["cherry_tf"]
+    and my_dict["mango_tf"]
+    and my_dict["banana_tf"]
+    and my_dict["toufu_tf"]
+    and my_dict["chocolate_tf"]
+    and my_dict["shell_tf"]
+)
     if result:
         if not my_dict["reason"]:
             if not my_dict["sweetpotato_tf"]:
