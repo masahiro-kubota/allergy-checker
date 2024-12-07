@@ -14,13 +14,13 @@ async def ask_dish_or_ingredient_async(name, client, start_time):
       model="gpt-4o-mini",
       messages=[
         {"role": "user", "content": f"""
-{name}は材料ですか？True/Falseのみで答えてください。"""}])
+{name}は料理ですか？True/Falseのみで答えてください。"""}])
     llm_response = response.choices[0].message.content
     final_response = check_true_false(llm_response)
     end = time()
     elapsed_time = end - start_time
-    print(f"Task finished in {elapsed_time} seconds: {final_response}")
-    key = "ingredient_tf"
+    print(f"ask_dish_or_ingredient_async finished in {elapsed_time} seconds: {final_response}")
+    key = "dish_tf"
     return key, final_response
 
 # 料理の作り方を確認
@@ -37,22 +37,28 @@ async def ask_dish_details_async(dish_name, client, start_time):
     final_response = response.choices[0].message.content
     end = time()
     elapsed_time = end - start_time
-    print(f"Task 1 finished in {elapsed_time} seconds")
+    print(f"ask_dish_details_async finished in {elapsed_time} seconds")
     key = "dish_details"
     return key, final_response
 
 # 料理の手順を確認
 
 
-async def check_ingredient_async(dish_name, ingredient, ingredient_key, dish_details, client, num, start_time):
+async def check_ingredient_async(dish_name, ingredient, ingredient_key, data_dict, client, num, start_time):
+    if data_dict["dish_tf"]:
+        prompt = f"""
+以下を参考にして、{dish_name}に{ingredient}が含まれているかをTrue/Falseのみで答えてください。
+
+{data_dict['dish_details']}
+    """
+    else:
+        prompt = f"""
+以下を参考にして、{dish_name}は{ingredient}であるかをTrue/Falseのみで答えてください。
+"""
     response = await client.chat.completions.create(
       model="gpt-4o-mini",
       messages=[
-        {"role": "user", "content": f"""
-以下を参考にして、{dish_name}に{ingredient}が含まれているかをTrue/Falseのみで答えてください。
-
-{dish_details}
-    """}])
+        {"role": "user", "content": prompt}])
     llm_response = response.choices[0].message.content
     final_response = not check_true_false(llm_response)
     end = time()
@@ -73,7 +79,7 @@ async def check_white_list_dish_async(dish_name, white_list, client, num, start_
     final_response = check_true_false(llm_response)
     end = time()
     elapsed_time = end - start_time
-    print(f"Task {num} finished in {elapsed_time} seconds: {final_response}")
+    print(f"check_white_list_dish_async finished in {elapsed_time} seconds: {final_response}")
     key = "white_list_tf"
     return key, final_response
 
@@ -89,41 +95,55 @@ async def create_tasks_async(my_dish):
     async_client = AsyncOpenAI()
     start_time = time()
     my_dict = {}
-    task1_1 = asyncio.create_task(ask_dish_details_async(my_dish, async_client, start_time))
-    task1_2 = asyncio.create_task(check_white_list_dish_async(my_dish, "ラーメン", async_client, 3, start_time))
-    task1 = [task1_1, task1_2]
-    for completed_task in asyncio.as_completed(task1):
+
+    # First Question
+    task0_1 = asyncio.create_task(ask_dish_or_ingredient_async(my_dish, async_client, start_time))
+    task0_2 = asyncio.create_task(check_white_list_dish_async(my_dish, "ラーメン", async_client, 3, start_time))
+    task0 = [task0_1, task0_2]
+    for completed_task in asyncio.as_completed(task0):
         key, result = await completed_task
         my_dict[key] = result
         yield f"data: {json.dumps({'type': key, 'result': result}, ensure_ascii=False)}\n\n"  # 日本語をエスケープしない
 
-    print(my_dict)
-    #results1 = await asyncio.gather(*task1)
-    # TODO 原材料と火が通っているかの確認は並行して処理できるからここでgatherする必要がない。
+    # Second Question
+    if my_dict["dish_tf"]:
+        task1_1 = asyncio.create_task(ask_dish_details_async(my_dish, async_client, start_time))
+        
+        task1 = [task1_1]
+        for completed_task in asyncio.as_completed(task1):
+            key, result = await completed_task
+            my_dict[key] = result
+            yield f"data: {json.dumps({'type': key, 'result': result}, ensure_ascii=False)}\n\n"  # 日本語をエスケープしない
 
-    my_dish_details = my_dict["dish_details"]
-    print(my_dish_details)
-    task2_1 = asyncio.create_task(check_ingredient_async(my_dish, "卵", "egg", my_dish_details, async_client, 1, start_time))
-    task2_2 = asyncio.create_task(check_ingredient_async(my_dish, "さつまいも以外の芋類", "potato", my_dish_details, async_client, 1, start_time))
-    task2_3 = asyncio.create_task(check_ingredient_async(my_dish, "たくさんの加熱処理されていない野菜", "raw_vegetables", my_dish_details, async_client, 1, start_time))
-    task2_4 = asyncio.create_task(check_ingredient_async(my_dish, "ナッツ", "nuts", my_dish_details, async_client, 1, start_time))
-    task2_5 = asyncio.create_task(check_ingredient_async(my_dish, "ごぼう", "burdock", my_dish_details, async_client, 1, start_time))
-    task2_6 = asyncio.create_task(check_ingredient_async(my_dish, "れんこん", "lotus", my_dish_details, async_client, 1, start_time))
-    task2_7 = asyncio.create_task(check_ingredient_async(my_dish, "こんにゃく", "konjac", my_dish_details, async_client, 1, start_time))
-    task2_8 = asyncio.create_task(check_ingredient_async(my_dish, "そば", "buckwheat", my_dish_details, async_client, 1, start_time))
+        print(my_dict)
+
+    # Third Question
+    task2_1 = asyncio.create_task(check_ingredient_async(my_dish, "卵", "egg", my_dict, async_client, 1, start_time))
+    task2_2 = asyncio.create_task(check_ingredient_async(my_dish, "芋", "potato", my_dict, async_client, 2, start_time))
+    task2_3 = asyncio.create_task(check_ingredient_async(my_dish, "たくさんの加熱処理されていない野菜", "raw_vegetables", my_dict, async_client, 3, start_time))
+    task2_4 = asyncio.create_task(check_ingredient_async(my_dish, "豆・ナッツ", "nuts", my_dict, async_client, 4, start_time))
+    task2_5 = asyncio.create_task(check_ingredient_async(my_dish, "ごぼう", "burdock", my_dict, async_client, 5, start_time))
+    task2_6 = asyncio.create_task(check_ingredient_async(my_dish, "れんこん", "lotus", my_dict, async_client, 6, start_time))
+    task2_7 = asyncio.create_task(check_ingredient_async(my_dish, "こんにゃく", "konjac", my_dict, async_client, 7, start_time))
+    task2_8 = asyncio.create_task(check_ingredient_async(my_dish, "そば", "buckwheat", my_dict, async_client, 8, start_time))
+    # ジャガイモとさつまいもを同時に含む場合対応できない。さつまいもはホワイトリスト的に使っているから注意。
+    task2_9 = asyncio.create_task(check_ingredient_async(my_dish, "さつまいも", "sweetpotato", my_dict, async_client, 9, start_time))
     #task2_3 = asyncio.create_task(check_white_list_async(my_dish, "ラーメン", async_client, 3, start_time))
-    # TODO 追加確認材料 甲殻類　ごぼう　れんこん　こんにゃく　そば　
+    # TODO 追加確認材料 甲殻類　牛肉　生魚　
     # 追加ホワイトリスト　卵（ラーメン）　イモ類（さつまいも）　果物（柑橘類　いちご　ぶどう　パイナップル　りんご　缶詰）豆（醤油　味噌）　甲殻類（えびせん　桜えび）　　
-    tasks2 = [task2_1, task2_2, task2_3, task2_4, task2_5, task2_6, task2_7, task2_8]
+    tasks2 = [task2_1, task2_2, task2_3, task2_4, task2_5, task2_6, task2_7, task2_8, task2_9]
     for completed_task in asyncio.as_completed(tasks2):
         key, result = await completed_task
         my_dict[key] = result
         yield f"data: {json.dumps({'type': key, 'result': result}, ensure_ascii=False)}\n\n"  # 日本語をエスケープしない
-    result = my_dict["white_list_tf"] or (my_dict["egg_tf"] and my_dict["potato_tf"] and my_dict["raw_vegetables_tf"] and my_dict["nuts_tf"] and my_dict["burdock_tf"] and my_dict["lotus_tf"] and my_dict["konjac_tf"] and my_dict["buckwheat_tf"])
+    result = my_dict["white_list_tf"] or (my_dict["egg_tf"] and potato_logic(my_dict["potato_tf"], my_dict["sweetpotato_tf"]) and my_dict["raw_vegetables_tf"] and my_dict["nuts_tf"] and my_dict["burdock_tf"] and my_dict["lotus_tf"] and my_dict["konjac_tf"] and my_dict["buckwheat_tf"])
     yield f"data: {json.dumps({'type': 'safe_to_eat', 'result': result}, ensure_ascii=False)}\n\n"  # 日本語をエスケープしない
     my_dict["dish_name"] = my_dish
     my_dict["safe_to_eat"] = result
     add_to_database(my_dict)
+
+def potato_logic(potato, sweetpotato):
+    return (not potato and not sweetpotato) or (potato and true)
 
 def add_to_database(data_dict):
     """
