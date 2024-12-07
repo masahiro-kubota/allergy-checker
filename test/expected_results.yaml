@@ -9,7 +9,7 @@
 "サンドイッチ": False
 "餃子": True
 "ハンバーグ": False
-"ダブルチーズハンバーグ": False
+"ダブルチーズハンバーガー": False
 ステーキ: false
 オムライス: false
 たこ焼き: false
@@ -48,3 +48,6 @@
 ハヤシライス: true
 サラダ: false
 チキンカレー: true
+じゃがいも: false
+さつまいも: True
+じゃがいもとさつまいものグラタン: False

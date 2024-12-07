@@ -4,11 +4,6 @@ Check if I can eat that dish.
 ![説明gif](images/sample.gif)
 
 ```
-# frontend
-$ python3 -m http.server 5000 -d frontend
-```
-
-```
 # Environment Setup
 $ cp .env.sample .env
 $ uv sync
