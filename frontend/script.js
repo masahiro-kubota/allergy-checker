@@ -13,6 +13,19 @@ document.getElementById("allergyForm").addEventListener("submit", async function
   const checkLotus = document.getElementById("checkLotus");
   const checkKonjac = document.getElementById("checkKonjac");
   const checkBuckwheat = document.getElementById("checkBuckwheat");
+  const checkCrustacean = document.getElementById("checkCrustacean");
+  const checkBeef = document.getElementById("checkBeef");
+  const checkRawFish = document.getElementById("checkRawFish");
+  const checkPeach = document.getElementById("checkPeach");
+  const checkPair = document.getElementById("checkPair");
+  const checkMelon = document.getElementById("checkMelon");
+  const checkWatermelon = document.getElementById("checkWatermelon");
+  const checkCherry = document.getElementById("checkCherry");
+  const checkMango = document.getElementById("checkMango");
+  const checkBanana = document.getElementById("checkBanana");
+  const checkToufu = document.getElementById("checkToufu");
+  const checkChocolate = document.getElementById("checkChocolate");
+  const checkShell = document.getElementById("checkShell");
 
   const loadingSpinner = document.getElementById("loadingSpinner"); // スピナー要素
   const questionMark = document.getElementById("questionMark");
@@ -32,6 +45,22 @@ document.getElementById("allergyForm").addEventListener("submit", async function
   checkLotus.textContent = "";
   checkKonjac.textContent = "";
   checkBuckwheat.textContent = "";
+  checkCrustacean.textContent = "";
+  checkBeef.textContent = "";
+  checkRawFish.textContent = "";
+  checkPeach.textContent = "";
+  checkPair.textContent = "";
+  checkMelon.textContent = "";
+  checkWatermelon.textContent = "";
+  checkCherry.textContent = "";
+  checkMango.textContent = "";
+  checkBanana.textContent = "";
+  checkToufu.textContent = "";
+  checkChocolate.textContent = "";
+  checkShell.textContent = "";
+
+
+
   loadingSpinner.style.display = "block"; // スピナーを表示
   questionMark.style.display = "none"; // チェックマークを非表示
   checkMark.style.display = "none"; // チェックマークを非表示
@@ -80,6 +109,32 @@ document.getElementById("allergyForm").addEventListener("submit", async function
               checkKonjac.textContent = `${data.result ? "○" : "×"}`;
           } else if (data.type === "buckwheat_tf") {
               checkBuckwheat.textContent = `${data.result ? "○" : "×"}`;
+          } else if (data.type === "crustacean_tf") {
+              checkCrustacean.textContent = `${data.result ? "○" : "×"}`;
+          } else if (data.type === "beef_tf") {
+              checkBeef.textContent = `${data.result ? "○" : "×"}`;
+          } else if (data.type === "raw_fish_tf") {
+              checkRawFish.textContent = `${data.result ? "○" : "×"}`;
+          } else if (data.type === "peach_tf") {
+              checkPeach.textContent = `${data.result ? "○" : "×"}`;
+          } else if (data.type === "pair_tf") {
+              checkPair.textContent = `${data.result ? "○" : "×"}`;
+          } else if (data.type === "melon_tf") {
+              checkMelon.textContent = `${data.result ? "○" : "×"}`;
+          } else if (data.type === "watermelon_tf") {
+              checkWatermelon.textContent = `${data.result ? "○" : "×"}`;
+          } else if (data.type === "cherry_tf") {
+              checkCherry.textContent = `${data.result ? "○" : "×"}`;
+          } else if (data.type === "mango_tf") {
+              checkMango.textContent = `${data.result ? "○" : "×"}`;
+          } else if (data.type === "banana_tf") {
+              checkBanana.textContent = `${data.result ? "○" : "×"}`;
+          } else if (data.type === "toufu_tf") {
+              checkToufu.textContent = `${data.result ? "○" : "×"}`;
+          } else if (data.type === "chocolate_tf") {
+              checkChocolate.textContent = `${data.result ? "○" : "×"}`;
+          }else if (data.type === "shell_tf") {
+              checkShell.textContent = `${data.result ? "○" : "×"}`;
           } else if (data.type === "safe_to_eat") {
               if (data.result) {
                 safeToEat.textContent = `${data.reason}`;;
