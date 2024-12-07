@@ -129,8 +129,8 @@ async def create_tasks_async(my_dish):
     # ジャガイモとさつまいもを同時に含む場合対応できない。さつまいもはホワイトリスト的に使っているから注意。
     task2_9 = asyncio.create_task(check_ingredient_async(my_dish, "さつまいも", "sweetpotato", my_dict, async_client, 9, start_time))
     #task2_3 = asyncio.create_task(check_white_list_async(my_dish, "ラーメン", async_client, 3, start_time))
-    # TODO 追加確認材料 甲殻類　牛肉　生魚　
-    # 追加ホワイトリスト　卵（ラーメン）　イモ類（さつまいも）　果物（柑橘類　いちご　ぶどう　パイナップル　りんご　缶詰）豆（醤油　味噌）　甲殻類（えびせん　桜えび）　　
+    # TODO 追加確認材料 甲殻類　牛肉　生魚　バナナ　桃　梨　メロン　スイカ　さくらんぼ　マンゴー
+    # 追加ホワイトリスト　卵（ラーメン）　ドーナツ　からあげ　えびせんべい（粉末とか桜えびの小さいやつならだい）
     tasks2 = [task2_1, task2_2, task2_3, task2_4, task2_5, task2_6, task2_7, task2_8, task2_9]
     for completed_task in asyncio.as_completed(tasks2):
         key, result = await completed_task
@@ -143,7 +143,7 @@ async def create_tasks_async(my_dish):
     add_to_database(my_dict)
 
 def potato_logic(potato, sweetpotato):
-    return (not potato and not sweetpotato) or (potato and true)
+    return (not potato and not sweetpotato) or (potato and True)
 
 def add_to_database(data_dict):
     """
