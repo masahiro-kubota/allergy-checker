@@ -9,54 +9,28 @@ from quart import Quart, request, jsonify, Response, render_template
 from quart_cors import cors
 from openai import AsyncOpenAI
 
-
-# Not used now
-async def check_cooked_async(dish_name, dish_details, client, num, start_time):
+async def ask_dish_or_ingredient_async(name, client, start_time):
     response = await client.chat.completions.create(
       model="gpt-4o-mini",
       messages=[
         {"role": "user", "content": f"""
-以下を参考にして、{dish_name}は火が通っているかをTrue/Falseのみで答えてください。
-
-{dish_details}
-    """}])
+{name}は材料ですか？True/Falseのみで答えてください。"""}])
     llm_response = response.choices[0].message.content
     final_response = check_true_false(llm_response)
     end = time()
     elapsed_time = end - start_time
-    print(f"Task {num} finished in {elapsed_time} seconds: {final_response}")
-    key = "cooked_tf"
+    print(f"Task finished in {elapsed_time} seconds: {final_response}")
+    key = "ingredient_tf"
     return key, final_response
 
-
-# Not used now
-async def ask_dish_cooked_async(dish_name, client, start_time):
-    
-    response = await client.chat.completions.create(
-      model="gpt-4o-mini",
-      messages=[
-        {"role": "user", "content": f"""
-{dish_name}に関して以下の質問に回答してください。
-
-火が通っているかどうか：
-    """}],
-      stream=False
-    )
-    final_response = response.choices[0].message.content
-    print(final_response)
-    end = time()
-    elapsed_time = end - start_time
-    print(f"Task 2 finished in {elapsed_time} seconds")
-    key = "cooked"
-    return key, final_response
-
+# 料理の作り方を確認
 async def ask_dish_details_async(dish_name, client, start_time):
     
     response = await client.chat.completions.create(
       model="gpt-4o-mini",
       messages=[
         {"role": "user", "content": f"""
-{dish_name}を作る際に主に使用する食材や調理法について教えてください。
+{dish_name}を作る手順を簡潔に教えてください。
     """}],
       stream=False
     )
@@ -66,6 +40,8 @@ async def ask_dish_details_async(dish_name, client, start_time):
     print(f"Task 1 finished in {elapsed_time} seconds")
     key = "dish_details"
     return key, final_response
+
+# 料理の手順を確認
 
 
 async def check_ingredient_async(dish_name, ingredient, ingredient_key, dish_details, client, num, start_time):
@@ -136,7 +112,7 @@ async def create_tasks_async(my_dish):
     task2_7 = asyncio.create_task(check_ingredient_async(my_dish, "こんにゃく", "konjac", my_dish_details, async_client, 1, start_time))
     task2_8 = asyncio.create_task(check_ingredient_async(my_dish, "そば", "buckwheat", my_dish_details, async_client, 1, start_time))
     #task2_3 = asyncio.create_task(check_white_list_async(my_dish, "ラーメン", async_client, 3, start_time))
-    # TODO 追加確認材料 ナッツ類　甲殻類　ごぼう　れんこん　こんにゃく　そば　
+    # TODO 追加確認材料 甲殻類　ごぼう　れんこん　こんにゃく　そば　
     # 追加ホワイトリスト　卵（ラーメン）　イモ類（さつまいも）　果物（柑橘類　いちご　ぶどう　パイナップル　りんご　缶詰）豆（醤油　味噌）　甲殻類（えびせん　桜えび）　　
     tasks2 = [task2_1, task2_2, task2_3, task2_4, task2_5, task2_6, task2_7, task2_8]
     for completed_task in asyncio.as_completed(tasks2):

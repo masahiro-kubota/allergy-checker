@@ -47,11 +47,11 @@ document.getElementById("allergyForm").addEventListener("submit", async function
       //base_url = 'http://127.0.0.1:8000'
 
       console.log("window.location.hostname: ", window.location.hostname);
-      if (window.location.hostname === "http://0.0.0.0:5000/") {
+      if (window.location.hostname === "0.0.0.0") {
         // ローカル環境の場合
         base_url = "http://localhost:8000";
         console.log("base_url: ", base_url);
-    } else if (window.location.hostname === "https://allergy-checker.vercel.app/") {
+    } else if (window.location.hostname === "allergy-checker.vercel.app") {
         // main環境の場合
         base_url = "https://allergy-checker.onrender.com";
         console.log("base_url: ", base_url);
