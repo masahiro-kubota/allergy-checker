@@ -5,7 +5,7 @@ import requests
 import yaml
 
 # API URL
-API_URL = "https://allergy-checker.onrender.com/check_allergy_stream"
+API_URL = "https://allergy-checker-1.onrender.com/check_allergy_stream"
 
 # 期待される結果
 
