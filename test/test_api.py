@@ -1,6 +1,7 @@
-import requests
 import json
+import sys
 
+import requests
 import yaml
 
 # API URL
@@ -56,5 +57,7 @@ if __name__ == "__main__":
         print("\nSome tests failed:")
         for dish, error in errors.items():
             print(f"- {dish}: {error}")
+        sys.exit(1)
     else:
         print("\nAll tests passed successfully!")
+        sys.exit(0)

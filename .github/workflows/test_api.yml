@@ -11,6 +11,7 @@ on:
       
 jobs:
   test:
+    if: ${{ github.event.label.name == 'api-test' }}
     runs-on: ubuntu-latest
 
     steps:
